@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-us" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Week10-hw</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+		<link rel="stylesheet" type="text/css" href="mystyles/0.css" />
+	</head>
+	<body>
+		<h1>Homework1: survey in MVC</h1>
+		<p><a href="questionare1.html">new survey</a></p>	
+		<p><a href="162.105.146.180:8619">reverse proxy</a></p>
+		<p><a href="Application.java">Application.java</a></p>	
+		<p><a href="Person.java">Person.java</a></p>
+		<p><a href="index.scala.html">index.scala.html</a></p>
+		<p><a href="application.conf">application.conf</a></p>
+		<p><a href="routes">routes</a></p>
+		<p><hr/></p>
+		<h1>Homework2: brief introduction</h1>
+		<p>
+		&nbsp;&nbsp;Play framework is used here, and a simple survey is achieved. I 
+		implement 'add' and 'show' operations, and 'delete' is not achieved
+		due to time-scheduling. Important work is app/controllers/Application.java,
+	       	app/models/Person.java and views/index.scala.html, while there are also 
+		subtle changes to conf/application.conf and conf/routes.
+		&nbsp;&nbsp;My web application executes in port 9119, and I reconfig the apache
+		to suport reverse-proxy.(dynamicly add proxy-module, the virtual host is executed 
+		in port 8619.) As a result, the command to start the application will be:
+		./play-java -Dhttp.port=9119 -DapplyEvolutions.default=true
+		&nbsp;&nbsp;To use the application, type in url 162.105.146.180:8619
+		</p>
+	</body>
+</html>
+
+
+

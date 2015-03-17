@@ -1,0 +1,17 @@
+@(message: String)
+
+@main("Welcome to Play") {
+
+<!--@play20.welcome(message, style = "Java")-->
+	@message
+	<script type="text/javascript" src='@routes.Assets.at("js/index.js")'></script>
+	<ul id="persons"></ul>
+	<form action="@routes.Application.addPerson()" method="post">
+		<p>&nbsp;&nbsp;Name&nbsp;<input type="text" name="name" /></p>
+		<p>&nbsp;&nbsp;&nbsp;Age&nbsp;<input type="text" name="age" /></p>
+		<p>Gender&nbsp;<input type="text" name="gender" /></p>
+		<p>&nbsp;Email&nbsp;<input type="text" name="email" /></p>
+		<button>Add</button>
+		<p><a href="162.105.146.180:8619/persons">Query</a></p>
+	</form>
+}

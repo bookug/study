@@ -1,0 +1,11 @@
+#! /bin/bash
+#The First Shell Script
+function numAdd(){
+	#echo $(($1+$2));
+	return $(($1+$2));
+}
+numAdd 1 2;
+total=$?
+#total=$(numAdd 1 2);
+echo $total;
+exit 0;

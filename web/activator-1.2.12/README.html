@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Java (vers. 2009-12-01), see jtidy.sourceforge.net">
+<title>Activator</title>
+</head>
+<body>
+<h1>Typesafe Activator Documentation</h1>
+<blockquote>
+<p>Activator can be used from a web browser or from a command
+line.</p>
+</blockquote>
+<h2>Launch Instructions</h2>
+<p>Once installed you can run Typesafe Activator's UI either from a
+file browser or from a command line. If you run the Activator UI
+from within an application's root directory that application will
+be automatically opened. The <code>activator</code> command is a
+wrapper around <a href="http://www.scala-sbt.org/">sbt</a> when
+used from an existing application's root directory. When used
+outside of a application directory you can either create a new
+application by running <code>activator new</code> or launch the
+UI.</p>
+<h3>Launch the UI on Windows</h3>
+<h4>From Windows Explorer</h4>
+<ol>
+<li>Right-click on the <code>activator.bat</code> file</li>
+<li>Select "Open"</li>
+<li>If prompted with a warning, select to continue</li>
+</ol>
+<h4>From a Command prompt</h4>
+<ol>
+<li>Navigate to the directory containing the
+<code>activator.bat</code> file</li>
+<li>Run: <code>activator ui</code></li>
+</ol>
+<h3>Launch the UI on Mac</h3>
+<h4>From Finder</h4>
+<ol>
+<li>Ctrl-click or right-click on the <code>activator</code>
+file</li>
+<li>Select "Open"</li>
+<li>When prompted, select "Open"</li>
+</ol>
+<h4>From Terminal</h4>
+<ol>
+<li>Navigate the the directory containing the
+<code>activator</code> file</li>
+<li>Run: <code>./activator ui</code></li>
+</ol>
+<h3>Launch the UI on Linux</h3>
+<h4>From a GUI file browser</h4>
+<ol>
+<li>Double-click on the <code>activator</code> file</li>
+</ol>
+<h4>From Terminal</h4>
+<ol>
+<li>Navigate the the directory containing the
+<code>activator</code> file</li>
+<li>Run: <code>./activator ui</code></li>
+</ol>
+<h2>The Activator UI</h2>
+<p>Once you have launched the UI it can be reached in your browser
+at: [http://localhost:8888]</p>
+<h3>Creating New Applications</h3>
+<p>If you have launched the UI outside of a application's root
+directory you can now create a new application based on one of the
+templates. Both Typesafe and the community have contributed
+templates to Activator. <a href=
+"http://typesafe.com/activator/template/contribute">Learn more
+about how to contribute your own template</a></p>
+<p>Once you have selected a template and optionally entered a name
+and location, select the <em>Create</em> button to have your new
+application created.</p>
+<h3>Open an Existing Application Using the Web Interface</h3>
+<p>Existing applications can be opened by running
+<code>activator</code> or <code>activator.bat</code> from a
+project's root directory. If the Activator UI is already running,
+then open [http://localhost:8888/home] in your browser and either
+select a known existing app, or click the <em>Find Existing</em>
+button to browse to an existing app.</p>
+<h3>Working with Applications in the Activator UI</h3>
+<p>Once you have created or opened an application in the Activator
+UI you can:<br>
+
+* Read the Tutorial<br>
+
+* Browse &amp; edit the code (select <em>Code</em>)<br>
+
+* Open the code in IntelliJ IDEA or Eclipse (select <em>Code</em>
+then the <em>Open</em> dropdown)<br>
+
+* See the compile output (select <em>Compile</em>)<br>
+
+* Test the application (select <em>Test</em>)<br>
+
+* Run the application (select <em>Run</em>)<br>
+
+* Inspect Actors and Requests in Play Framework and Akka
+applications (select <em>Inspect</em>)<br>
+
+* Create a new application or open an existing one (select the
+application's name in the top right, then select <em>Manage
+Applications</em>)</p>
+<p>Whenever you save changes to a source file in the application,
+the changes will be recompiled, the application will be re-run, and
+the tests will be re-run.</p>
+<h3>Re-Launching Activator</h3>
+<p>To make it easy to re-launch Activator (either from a file
+browser or command line) after you've shut it down, you can either
+launch it the same way you did the first time, or you can launch it
+from the new application's root directory. If you launch it from
+the application's root directory then the UI will automatically
+launch with the application open. Otherwise you will need to open
+the existing application. To make it easy for others to launch
+Activator for your application you can put the
+<code>activator</code>, <code>activator.bat</code>, and
+<code>activator-launch-VERSION.jar</code> files in your SCM.</p>
+<h2>Activator Configuration</h2>
+<h3>Proxy Configuration</h3>
+<p>When running activator behind a proxy, some additional
+configuration is needed. Open the
+<code>~/.activator/activatorconfig.txt</code> file in a text editor
+(creating it if necessary. Once you have the file open and ready to
+configure, we need to make sure it has the following lines:</p>
+<pre>
+<code>
+# This are the proxy settings we use for activator
+-Dhttp.proxyHost=PUT YOUR PROXY HOST HERE
+-Dhttp.proxyPort=PUT YOUR PROXY PORT HERE
+# Here we configure the hosts which should not go through the proxy.  You should include your private network, if applicable.
+-Dhttp.nonProxyHosts="localhost|127.0.0.1"
+# These are commented out, but if you need to use authentication for your proxy, please fill these out.
+#-Dhttp.proxyUser=PUT YOUR PROXY USER HERE
+#-Dhttp.proxyPassword=PUT YOUR PROXY PASSWORD HERE
+</code>
+</pre>
+
+<h3>Increasing the Network Timeout</h3>
+<p>By default Activator has a 10 second timeout to fetch the latest
+templates and check for a new version. On slow internet connections
+it might be necessary to increase that timeout. You can do that
+from the command line by including a
+<code>-Dactivator.timeout=30s</code> parameter or by putting that
+parameter into your <code>~/.activator/activatorconfig.txt</code>
+file.</p>
+<h2>Activator Resources</h2>
+<p><a href="https://github.com/typesafehub/activator">Source
+Code</a><br>
+
+<a href="https://github.com/typesafehub/activator/issues">Issue
+Tracker</a></p>
+<h2>License</h2>
+<p>Typesafe Activator is licensed under <a href=
+"http://opensource.org/licenses/Apache-2.0">Apache License, Version
+2.0</a>; including the command-line Launcher, HTML &amp; JavaScript
+UI, Play Framework based server, and all tests included in the
+project. The templates available in Typesafe Activator are licensed
+individually by the owner. Refer to template source code or owner
+for license information.</p>
+</body>
+</html>

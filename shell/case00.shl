@@ -1,0 +1,15 @@
+#! /bin/bash
+#The First Shell Script
+
+for file in test*.shl;
+do
+	read -p "是否继续(y/n)?" YN;
+	if test "$YN" == "y" || test "$YN" == "Y";#此行比较特殊
+	then
+		echo -e "FileName=$file\n";
+		more $file;
+	else
+		break;
+	fi
+done;
+exit 0;

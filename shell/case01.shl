@@ -1,0 +1,14 @@
+#! /bin/bash
+#The First Shell Script
+
+for file in test*.{shl,cc};
+do
+	read -p "是否继续(1/0)?" YN;
+	if [ "$YN" -eq "1" ]; 	then
+		echo -e "FileName=$file\n";
+		more $file;
+	else
+		break;
+	fi
+done;
+exit 0;
