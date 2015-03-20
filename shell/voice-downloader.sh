@@ -12,10 +12,12 @@ function random()			#this function is not used, just for fun
 function f()				#deal and download the according voice
 {
 	wget -P data http://iciba.com/$1;
-	#str=`grep -m2 -A8 "<span class=\"eg\">" data/$1 | grep -o "asplay('.*\.mp3');"`
-	str=`grep -m2 -A8 "<span class=\"eg\">" data/$1` 
-	str1=`echo $str | grep -o "asplay('.*\.mp3');"`
-	str2=`echo $str | grep -o "asplay('.*\.mp3');"`		#how to find the second?
+	#str=`grep -m1 -A8 "<span class=\"eg\">" data/$1 | grep -o "asplay('.*\.mp3');"`
+	#str=`grep -m2 -A8 "<span class=\"eg\">" data/$1`	#QUERY:not work?
+	str1=`grep -m2 -A8 "<span class=\"eg\">" data/$1 | grep -A4 "英" | grep -o "asplay.*onmouseover" | grep -o "asplay('.*\.mp3')"`
+	str2=`grep -m2 -A8 "<span class=\"eg\">" data/$1 | grep -A4 "美" | grep -o "asplay.*onmouseover" | grep -o "asplay('.*\.mp3')"`		#how to find the second?
+	echo $str1
+	echo $str2
 	if [ "$str1" = "" ]
 	then
 		echo "English Voice Not Found"
@@ -23,8 +25,7 @@ function f()				#deal and download the according voice
 		len=`expr ${#str1} - 11`				#QUERY:strange here!
 		url=`expr substr $str1 9 $len`
 		echo $url
-		wget -P data $url					#QUERY:if indicate directory?
-		rm -f data/$1
+		wget $url -O data/$1-English.mp3					#QUERY:if indicate directory?
 	fi
 	if [ "$str2" = "" ]
 	then
@@ -33,9 +34,9 @@ function f()				#deal and download the according voice
 		len=`expr ${#str2} - 11`
 		url=`expr substr $str2 9 $len`
 		echo $url
-		wget -P data $url
-		rm -f data/$1
+		wget $url -O data/$1-American.mp3
 	fi
+	#rm -f data/$1
 }
 
 array=(`cut -f1 /usr/share/dict/words | shuf -n $1`) #extract $1 words randomly
