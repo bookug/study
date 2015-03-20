@@ -7,3 +7,23 @@
 #!/bin/bash
 #This is my first shell program
 
+#You must want to know how to debug shell-scripts
+#Here are three ways for you：
+#1. in command-line: bash -x script.sh
+#2. in shell-script: set -x ... set +x
+#3. in shell-script: 
+#log()
+#{
+#	if [ "$DEBUG" = "true" ]; then
+#	echo "debug information"
+#	fi
+#}
+#and control the DEBUG in command-line
+
+#test if the given file exists
+#if [ -f $1 ]
+#then
+#	echo "$1 file exist"
+#else
+#	echo "Sorry, $1 file does not exist"
+#fi

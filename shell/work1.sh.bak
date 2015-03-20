@@ -1,0 +1,24 @@
+#! /bin/bash -
+#this program is used to finish the first homework
+
+function random()
+{		#if not return explictly, using the last expression-value as ret
+	t=`expr $2 - $1`;
+	t=`expr $RANDOM % $t`;
+	t=`expr $1 + $t`;	
+	return $t;		#use $? to get the return-value
+}
+
+function f()	#deal and download the according voice
+{
+	wget http://iciba.com/$1.html;
+	url=""；	#how to find
+	wget $url;	#if indicate directory?
+}
+
+random 1 7;
+echo $?;
+#f "dog";
+#echo -e "An apple a day keeps away \a\t\tdoctor\n"
+#cat < /usr/share/dict/words |xargs 
+

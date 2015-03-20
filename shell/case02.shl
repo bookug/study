@@ -1,9 +1,0 @@
-#! /bin/bash
-#The First Shell Script
-function numAdd(){
-	return $(($1+$2));
-}
-numAdd 1 2;#如同命令
-total=$?;
-echo $total;
-exit 0;
