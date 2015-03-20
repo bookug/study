@@ -12,16 +12,29 @@ function random()			#this function is not used, just for fun
 function f()				#deal and download the according voice
 {
 	wget -P data http://iciba.com/$1;
-	str=`grep -m1 -A8 "<span class=\"eg\">" data/$1 | grep -o "asplay('.*\.mp3');"`
-	if [ "$str" = "" ]
+	#str=`grep -m2 -A8 "<span class=\"eg\">" data/$1 | grep -o "asplay('.*\.mp3');"`
+	str=`grep -m2 -A8 "<span class=\"eg\">" data/$1` 
+	str1=`echo $str | grep -o "asplay('.*\.mp3');"`
+	str2=`echo $str | grep -o "asplay('.*\.mp3');"`		#how to find the second?
+	if [ "$str1" = "" ]
 	then
-		echo "Voice Not Found"
+		echo "English Voice Not Found"
 	else
-		len=`expr ${#str} - 11`				#QUERY:strange here!
-		url=`expr substr $str 9 $len`
+		len=`expr ${#str1} - 11`				#QUERY:strange here!
+		url=`expr substr $str1 9 $len`
 		echo $url
 		wget -P data $url					#QUERY:if indicate directory?
-		rm -f data/$1.html
+		rm -f data/$1
+	fi
+	if [ "$str2" = "" ]
+	then
+		echo "American Voice Not Found"
+	else
+		len=`expr ${#str2} - 11`
+		url=`expr substr $str2 9 $len`
+		echo $url
+		wget -P data $url
+		rm -f data/$1
 	fi
 }
 
