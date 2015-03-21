@@ -5,7 +5,7 @@
 if [ $# -ne 2 ] 
 then
 	echo "ERROR: invalid arguments"
-	echo "USAGE: ./$0 n1 n2"
+	echo "USAGE: $0 n1 n2"
 	exit 1
 else
 	echo "Sum of $1 and $2 is `expr $1 + $2`"
