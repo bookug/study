@@ -32,7 +32,8 @@ function f()				#deal and download the according voice
 		#len=`expr ${#str1} - 11`    #QUERY:strange here?
 		#url=`expr substr $str1 9 $len`
 		echo $str1
-		wget $str1 -O data/$1-English.mp3					#QUERY:if indicate directory?
+		wget $str1 -O data/$1-English.mp3	
+		#above works because - can't be in variable name, but can be file-name. ${1}_...
 	fi
 	if [ "$str2" = "" ]
 	then
@@ -73,10 +74,16 @@ then
 		num=$1	#BETTER: check number
 	else			#input words from the terminal
 		echo "Please input in the terminal, press CTRL-C to exit"
-		while [ read -t 60 -p "Your Words: " query ]
+		while [ 1 ]	
 		do
+			read -t 60 -p "Your Words: " query   #NOTICE: not use `` here
+			if [ $? -ne 0 ]
+			then
+				echo "Please input in a minute"
+				exit 1
+			fi
 			f $query
-			sleep `expr 2 + $RANDOM % 3`
+			sleep `expr 5 + $RANDOM % 30`
 		done
 		exit 0
 	fi
@@ -90,7 +97,7 @@ array=(`cut -f1 $file | shuf -n $num`)
 for ((i=0; i<$num; i++))
 do
 	f ${array[$i]}
-	sleep `expr 5 + $RANDOM % 5`		#wait in random-time, to avoid ip-forbidden
+	sleep `expr 5 + $RANDOM % 30`		#wait in random-time, to avoid ip-forbidden
 done
 
 #echo -e "An apple a day keeps away \a\t\tdoctor\n"
