@@ -1,5 +1,6 @@
 #! /bin/bash -
 #this program is used to finish the first homework
+#according to a word book, download English and American voice for choosen word
 
 function random()			#this function is not used, just for fun
 {		#if not return explictly, using the last expression-value as ret
@@ -11,7 +12,7 @@ function random()			#this function is not used, just for fun
 
 function hang()
 {
-	sleep `expr 10 + $RANDOM % 60`	#wait in random-time, to avoid ip-forbidde
+	sleep `expr 5 + $RANDOM % 30`	#wait in random-time, to avoid ip-forbidden
 }
 
 function f()				#deal and download the according voice
@@ -69,14 +70,14 @@ function error()
 	exit 1
 }
 
-file="/usr/share/dict/words"
-num=100
-if [ $# -eq 0 ]
+file="/usr/share/dict/words"	#default file to use
+num=100							#default num to choose words
+if [ $# -eq 0 ]		
 then
 	echo "all arguments will use default value"
-elif [ $# -eq 3 ]
+elif [ $# -eq 3 ]				#user assign the file and num
 then
-	if [ "$1" != "-f" ]
+	if [ "$1" != "-f" ]			
 	then
 		error
 	fi
@@ -84,10 +85,10 @@ then
 	num=$3
 elif [ $# -eq 1 ]
 then
-	if [ "$1" != "-t" ]
+	if [ "$1" != "-t" ]			#user assign the num, using default file
 	then
 		num=$1	#BETTER: check number
-	else			#input words from the terminal
+	else						#input words from the terminal
 		echo "Please input in the terminal, press CTRL-C to exit"
 		while [ 1 ]	
 		do
@@ -108,7 +109,7 @@ fi
 array=(`cut -f1 $file | shuf -n $num`) 
 #length=${#array[@]}		
 #NOTICE: if use multiple variable with same name, bug come!!!
-for ((i=0; i<$num; i++))
+for ((i=0; i<$num; i++))		#for i in [0..$num]
 do
 	f ${array[$i]}
 done

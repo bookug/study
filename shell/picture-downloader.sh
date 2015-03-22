@@ -33,16 +33,16 @@ function error()
 
 echo "Please ensure that you have installed ImageMagick!"
 url="http://e.hiphotos.baidu.com/image/pic/item/aa18972bd40735fa12b197be9c510fb30f240870.jpg"
-if [ $# -eq 1 ]
+if [ $# -eq 1 ]		#user assign the url
 then
 	url=$1
-elif [ $# -ne 0 ]
+elif [ $# -ne 0 ]	
 then
 	error
-fi
+fi					#if not assigned, url is by default
 wget $url -O data/src.jpg
 str=`cd data;identify src.jpg`
-width=690		#TODO: to extract..
+width=690		#TODO: to extract width and height
 height=451
 `cd data;convert src.jpg -gravity center -crop 400x400+100+0 dest.jpg`
 #more function to add: -shade...
