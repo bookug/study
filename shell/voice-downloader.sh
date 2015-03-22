@@ -9,11 +9,24 @@ function random()			#this function is not used, just for fun
 	return $t;				#use $? to get the return-value
 }
 
+function hang()
+{
+	sleep `expr 10 + $RANDOM % 60`	#wait in random-time, to avoid ip-forbidde
+}
+
 function f()				#deal and download the according voice
 {
 	wget -P data http://iciba.com/$1
-	ret=`grep -o "您要查找的是不是:" data/$1`
-	if [ "$ret" != "" ]		#the word not exist
+	ifforbidden=`grep -o "来自您ip的请求异常频繁" data/$1`
+	if [ "$ifforbidden" != "" ]	#ip is forbidden by iciba
+	then
+		echo "Sorry, IP is forbidden by ICIBA"
+		rm -f data/$1
+		exit 1
+	fi
+	hang
+	ifexist=`grep -o "您要查找的是不是:" data/$1`
+	if [ "$ifexist" != "" ]		#the word not exist
 	then
 		echo "Fail to search this word!"
 		rm -f data/$1
@@ -34,6 +47,7 @@ function f()				#deal and download the according voice
 		echo $str1
 		wget $str1 -O data/$1-English.mp3	
 		#above works because - can't be in variable name, but can be file-name. ${1}_...
+		hang
 	fi
 	if [ "$str2" = "" ]
 	then
@@ -43,6 +57,7 @@ function f()				#deal and download the according voice
 		#url=`expr substr $str2 9 $len`
 		echo $str2
 		wget $str2 -O data/$1-American.mp3
+		hang
 	fi
 	rm -f data/$1
 }
@@ -83,7 +98,6 @@ then
 				exit 1
 			fi
 			f $query
-			sleep `expr 5 + $RANDOM % 30`
 		done
 		exit 0
 	fi
@@ -97,7 +111,6 @@ array=(`cut -f1 $file | shuf -n $num`)
 for ((i=0; i<$num; i++))
 do
 	f ${array[$i]}
-	sleep `expr 5 + $RANDOM % 30`		#wait in random-time, to avoid ip-forbidden
 done
 
 #echo -e "An apple a day keeps away \a\t\tdoctor\n"
