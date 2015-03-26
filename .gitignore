@@ -1,1 +1,5 @@
-# nothing to do now
+
+# Data and logs
+*.log*
+data
+
