@@ -2,4 +2,4 @@
 # Data and logs
 *.log*
 data
-
+*.tar.gz
