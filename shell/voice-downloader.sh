@@ -1,5 +1,5 @@
 #! /bin/bash -
-#this program is used to finish the first homework
+#this program is used to finish homework 1.1
 #according to a word book, download English and American voice for choosen word
 
 function random()			#this function is not used, just for fun
