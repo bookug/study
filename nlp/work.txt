@@ -1,0 +1,74 @@
+The flow for this job:
+1. divide three files using standford-segmenter
+	write a program to read file and deal:
+	build words-vector and store necessary information like type
+2. train:	train
+	choose an analyse-startegy
+3. adjust:	dev
+	compare and adjust the strategy
+4. test:	test
+	use my program to work out type for tested data, then hand in
+
+
+
+Notice:
+1. Chinese words occupy 3 bytes in Linux, as well as comma and period.
+2. Chinese words string also need a '\0', which use exactly a byte.
+3. It seems words in the title may be good choice for keys.
+4. There are in total 24 first level classes, and over 240 second level classes.
+
+
+
+Strategy: TF-IDF, Beyes...
+
+TF-IDF: simple and fast, useful but too absolute. Important words may not
+have many occurence, and words' position information is totally neglected.
+
+To find the key-words, believing that Term Frequence is very important.
+Notice that stop-words are non-sense, and usual words are not so important.
+如果某个词比较少见，但是它在这篇文章中多次出现，那么它很可能就反映了这篇文章的特性，
+正是我们所需要的关键词。
+用统计学语言表达，就是在词频的基础上，要对每个词分配一个"重要性"权重。
+最常见的词（"的"、"是"、"在"）给予最小的权重，较常见的词（"中国"）给予较小的权重，
+较少见的词（"蜜蜂"、"养殖"）给予较大的权重。这个权重叫做"逆文档频率"
+（Inverse Document Frequency，缩写为 IDF），它的大小与一个词的常见程度成反比.
+知道了"词频"（TF）和"逆文档频率"（IDF）以后，将这两个值相乘，就得到了一个词的 TF-IDF 值。某个词对文章的重要性越高，它的 TF-IDF 值就越大。所以，排在最前面的几个词，就是这篇文章的关键词。
+(1) compute the TF: it can be the count of occurence, but must be standardlized because
+essays have different length. 
+TF = num/sum	or		num/max
+(2) compute the IDF: a corpus is needed, for a specific language
+IDF = log(sum of essays in corpus / (1 + num of essays include this word))
+(3) TF-IDF = TF * IDF
+sort in decrease-order, and extract the highest ones as key-words.
+
+Cosine Similiarity: to find the similar essays
+基本思路是：如果这两句话的用词越相似，它们的内容就应该越相似。
+因此，可以从词频入手，计算它们的相似程度。
+第一步，分词。(标点符号无用，但分词程序会保留)
+第二步，列出所有的词。
+第三步，计算词频。(总体为并集)
+第四步，写出词频向量。(词按编码值排序)
+到这里，问题就变成了如何计算这两个向量的相似程度。
+我们可以把它们想象成空间中的两条线段，都是从原点（[0, 0, ...]）出发，指向不同的方向。
+两条线段之间形成一个夹角，如果夹角为0度，意味着方向相同、线段重合；如果夹角为90度，
+意味着形成直角，方向完全不相似；如果夹角为180度，意味着方向正好相反。因此，
+我们可以通过夹角的大小，来判断向量的相似程度。夹角越小，就代表越相似。
+余弦值越接近1，就表明夹角越接近0度，也就是两个向量越相似，这就叫"余弦相似性"。
+由此，我们就得到了"找出相似文章"的一种算法：
+（1）使用TF-IDF算法，找出两篇文章的关键词；
+（2）每篇文章各取出若干个关键词（比如20个），合并成一个集合，
+	计算每篇文章对于这个集合中的词的词频（为了避免文章长度的差异，可以使用相对词频）；
+（3）生成两篇文章各自的词频向量；
+（4）计算两个向量的余弦相似度，值越大就表示越相似。
+
+
+
+Work to be done in 2015.4.4
+Use shell-script to extract catalog and key-words: just the title for now
+grep "</title>" train -m1
+grep "</ccnc_cat >" train -m1
+For each catalog, combine the key-words and compute the vectors-set.
+(not consider two catalog-levels now)
+
+
+
