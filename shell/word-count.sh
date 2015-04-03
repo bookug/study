@@ -8,6 +8,8 @@ function work()
 }
 
 wget http://en.wikipedia.org/wiki/Main_Page -O data/wiki.html
-#
- awk '/href/{print $0}' data/wiki.html | grep -o "href=\"[^\"]*\"" | shuf -n 10 | awk -F '=' '{print $2};' | sed -e 's/"//g' -e 's/^\/*//' -e 's/^/en.wikipedia.org\//'
+#extract the url, remove ", adjust the leading /, add prefix
+ awk '/href/{print $0}' data/wiki.html | grep -o "href=\"[^\"]*\"" | shuf -n 10 | awk -F '=' '{print $2};' | sed -e 's/"//g' -e 's/^\/*//' -e 's/^/en.wikipedia.org\//' > data/tmp.$$
+cat data/tmp.$$ | work
+
 
