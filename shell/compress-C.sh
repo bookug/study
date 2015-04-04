@@ -36,7 +36,7 @@ function remove_comments_directory()
 			*.c) remove_comments_file;; 
 			*.cpp) remove_comments_file;; 
 			*.h) remove_comments_file;;
-			*)				#if directory then recurse, otherwise error
+			*)									#if directory then recurse, otherwise error
 			if [ -d $file ]
 			then 
 				cd $file	
@@ -58,12 +58,12 @@ then
 	exit 1 
 fi 
 
-if [ -f $DIR ]					#it is a file
+if [ -f $DIR ]								#it is a file
 then 
-	file=`basename $DIR`		#strip the directory from filename
+	file=`basename $DIR`					#strip the directory from filename
 	#echo $file
-	if [[ `echo $DIR | grep /` == $DIR ]]		#user assigns the path
-	then										#goto the exact directory
+	if [[ `echo $DIR | grep /` == $DIR ]]	#user assigns the path
+	then									#goto the exact directory
 		cd `echo $DIR | sed 's/'$file'//'`	#$file must be quoted here
 		remove_comments_file 
 	else 
@@ -72,9 +72,9 @@ then
 	exit 0; 
 fi 
 
-if [ -d $DIR ]			#it is a directory
+if [ -d $DIR ]								#it is a directory
 then
-	cd $DIR				#open and deal in directory
+	cd $DIR									#open and deal in directory
 	remove_comments_directory 
 	exit 0; 
 fi
