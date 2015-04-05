@@ -1,4 +1,4 @@
-The flow for this job:
+the flow for this job:
 1. divide three files using standford-segmenter
 	write a program to read file and deal:
 	build words-vector and store necessary information like type
