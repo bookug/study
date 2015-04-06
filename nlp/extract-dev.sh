@@ -9,7 +9,7 @@ function extract()
 	do
 		case $file in
 			[0-9]*.essay) 
-			sed -i -e '/<[ \t]*ccnc_cat/,/\/ccnc_cat[ \t]*>/d' -e 's/<[^>]*>//g' $file
+			sed -i -e '/<[ \t]*cat/,/\/cat[ \t]*>/d' -e 's/<[^>]*>//g' $file
 			sed -i -e 's/[[]{}|\\\/!@#$%\^&\*\.\?-_=+,:;]//g' $file 
 			sed -i -e 's/["()（）《》【】？，•·。、…”“：‘；’]//g' $file
 			cat $file >> words.set

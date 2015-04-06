@@ -71,4 +71,11 @@ For each catalog, combine the key-words and compute the vectors-set.
 (not consider two catalog-levels now)
 
 
+Work in 2015.4.6
+deal with test at last: divide and extract test(there is no catalog in, so how to divide)
+add IDF to each word
+compare: call C-program in shell, giving an essay's words-list
+		in C: for each class, union words, specify word-vector and compute cos
+(the essay classified to a class: put its docid in answer file for that class)
+
 
