@@ -13,7 +13,7 @@ sed -i '/<[ \t]*\/doc[ \t]*>/d' $1
 #TODO: remove spaces in quotes, or use two docid to match two lines
 while [ 1 ]
 do
-	str=`grep -m1 "<[ \t]*ccnc_cat" $1`
+	str=`grep -m1 "<[ \t]*cat" $1`
 	echo $str
 	if [ ! "$str" ]			# "$str" X$str = "X" -z $str
 	then
