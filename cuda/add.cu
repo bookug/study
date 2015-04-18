@@ -36,3 +36,4 @@ int main(void)
 		maxError = max(maxError, abs(y[i]-4.0f));
 	printf("Max error: %fn", maxError);
 }
+
