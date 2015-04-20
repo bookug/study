@@ -1,3 +1,6 @@
+# compiled file
+*.cmi
+*.cmo
 
 # Data and logs
 *.log*
