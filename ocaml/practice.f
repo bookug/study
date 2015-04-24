@@ -1,7 +1,13 @@
 (*learn and practice ocaml*)
 
+
+
+(*
+TITLE: The Core Language
+*)
+
 (*variable-name must start with a lowercase letter*)
-(*generally, older one won't be changed, except special cases like array*)
+(*generally, older one won't be changed, except special cases like array'*)
 
 "sb"^"007";;    (*string in ocaml is not character-array, but a basic type*)
 
@@ -159,7 +165,7 @@ let (:=) r newval = r.contents <- newval;;
 structure, keeping its polymorphism. Without user-provided type annotations, this is not 
 allowed, as polymorphism is only introduced on a global level. However, you can give 
 explicitly polymorphic types to record fields.*)
-type idref = { mutable id: 'a. 'a -> 'a };;
+type idref = { mutable id: 'a. 'a -> 'a };;     (*'*)
 
 let r = {id = fun x -> x};;
 
@@ -273,5 +279,111 @@ let e = Sum(Prod(Const 2.0, Var "x"), Const 1.0);;
 print_expr e; print_newline ();;
 
 print_expr (deriv e "x"); print_newline ();;
+
+
+
+(*
+TITLE: The Module System
+*)
+
+(*a structure packaging together a type of priority queues and their operations*)
+module PrioQueue =
+    struct
+        type priority = int
+        type 'a queue = Empty | Node of priority * 'a * 'a queue * 'a queue
+        let empty = Empty
+        let rec insert queue prio elt =
+            match queue with
+            Empty -> Node(prio, elt, Empty, Empty)
+            | Node(p, e, left, right) ->
+                if prio <= p
+                then Node(prio, elt, insert right p e, left)
+                else Node(p, e, insert right prio elt, left)
+        exception Queue_is_empty
+        let rec remove_top = function
+            Empty -> raise Queue_is_empty
+            | Node(prio, elt, left, Empty) -> left
+            | Node(prio, elt, Empty, right) -> right
+            | Node(prio, elt, (Node(lprio, lelt, _, _) as left), (Node(rprio, rlet, _, _) as right)) -> 
+            if lprio <= rprio
+            then Node(lprio, lelt, remove_top left, right)
+            else Node(rprio, relt, left, remove_top right)
+        let extract = fucntion
+            Empty -> raise Queue_is_empty
+            | Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
+    end;;
+
+PrioQueue.insert PrioQueue.empty 1 "hello";;
+
+(*Restricting the PrioQueue structure by this signature results in another view
+of the PrioQueue structure where the remove_top function is not accessible and 
+the actual representation of priority queues is hidden*)
+
+module type PRIOQUEUE = 
+    sig 
+        type priority = int     (*still concrete*)
+        type 'a queue           (*now abstract*)
+        val empty: 'a queue
+        val insert: 'a queue -> int -> 'a -> 'a queue
+        val extract: 'a queue -> int * 'a * 'a queue 
+        exception Queue_is_empty
+    end;;
+
+module AbstractPrioQueue = (PrioQueue : PRIOQUEUE);;
+
+AbstractPrioQueue.insert AbstractPrioQueue.empty 1 "hello";;
+
+AbstractPrioQueue.remove_top;;      (*ERROR!!!*)
+
+(*The restriction can also be performed during the definition of the structure, as in
+module PrioQueue = (struct ... end : PRIOQUEUE);;
+An alternate syntax is provided for the above:
+module PrioQueue : PRIOQUEUE = struct ... end;;*)
+
+(*Functors are functions from structures to structures*)
+type comparison = Less | Equal | Greater;;
+module type ORDERED_TYPE =
+    sig
+        type t
+        val compare: t -> t -> comparison
+    end;;
+module Set =
+    functor (Elt: ORDERED_TYPE) ->
+        struct 
+            type element = Elt.t
+                type set = element list
+                let empty = []
+                let rec add x s =
+                match s with
+                    [] -> [x]
+                    | hd::tl -> 
+                        match Elt.compare x hd with
+                            Equal -> s      (*x is already in s*)
+                            | Less -> x::s    (*x is smaller than all elements of s*)
+                            | Greater -> hd::add x tl
+                let rec member x s =
+                    match s with
+                        [] -> false
+                        | hd::tl -> 
+                            match Elt.compare x hd with
+                                Equal -> true
+                                | Less -> false
+                                | Greater -> member x tl
+        end;;
+
+(*By applying the Set functor to a structure implementing an ordered
+type, we obtain set operations for this type*)
+
+module OrderedString =
+    struct 
+        type t = string
+        let compare x y = if x = y then Equal else if x < y then Less else Greater
+    end;;
+
+module StringSet = Set(OrderedString);;
+
+StringSet.member "bar" (StringSet.add "foo" StringSet.empty);;
+
+
 
 

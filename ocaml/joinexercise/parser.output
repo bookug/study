@@ -1,0 +1,809 @@
+   0  $accept : %entry% $end
+
+   1  toplevel : EOF
+   2           | Command SEMI toplevel
+
+   3  Command : Term
+   4          | LCID Binder
+
+   5  Binder : COLON Type
+
+   6  Type : ArrowType
+
+   7  AType : LPAREN Type RPAREN
+   8        | TTOP
+   9        | LCURLY FieldTypes RCURLY
+  10        | BOOL
+
+  11  ArrowType : AType ARROW ArrowType
+  12            | AType
+
+  13  Term : AppTerm
+  14       | LAMBDA LCID COLON Type DOT Term
+  15       | LAMBDA USCORE COLON Type DOT Term
+  16       | IF Term THEN Term ELSE Term
+
+  17  AppTerm : PathTerm
+  18          | AppTerm PathTerm
+
+  19  PathTerm : PathTerm DOT LCID
+  20           | PathTerm DOT INTV
+  21           | ATerm
+
+  22  ATerm : LPAREN Term RPAREN
+  23        | LCID
+  24        | LCURLY Fields RCURLY
+  25        | TRUE
+  26        | FALSE
+
+  27  Fields :
+  28         | NEFields
+
+  29  NEFields : Field
+  30           | Field COMMA NEFields
+
+  31  Field : LCID EQ Term
+  32        | Term
+
+  33  FieldTypes :
+  34             | NEFieldTypes
+
+  35  NEFieldTypes : FieldType
+  36               | FieldType COMMA NEFieldTypes
+
+  37  FieldType : LCID COLON Type
+  38            | Type
+
+  39  %entry% : '\001' toplevel
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . toplevel  (39)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 7
+	EOF  shift 8
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	toplevel  goto 11
+	Command  goto 12
+	Term  goto 13
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	Term : LAMBDA . LCID COLON Type DOT Term  (14)
+	Term : LAMBDA . USCORE COLON Type DOT Term  (15)
+
+	LCID  shift 17
+	USCORE  shift 18
+	.  error
+
+
+state 4
+	Term : IF . Term THEN Term ELSE Term  (16)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 20
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 5
+	ATerm : TRUE .  (25)
+
+	.  reduce 25
+
+
+state 6
+	ATerm : FALSE .  (26)
+
+	.  reduce 26
+
+
+state 7
+	Command : LCID . Binder  (4)
+	ATerm : LCID .  (23)
+
+	COLON  shift 21
+	TRUE  reduce 23
+	FALSE  reduce 23
+	LCID  reduce 23
+	DOT  reduce 23
+	LCURLY  reduce 23
+	LPAREN  reduce 23
+	SEMI  reduce 23
+
+	Binder  goto 22
+
+
+state 8
+	toplevel : EOF .  (1)
+
+	.  reduce 1
+
+
+state 9
+	ATerm : LCURLY . Fields RCURLY  (24)
+	Fields : .  (27)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 23
+	LCURLY  shift 9
+	LPAREN  shift 10
+	RCURLY  reduce 27
+
+	Term  goto 24
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+	Fields  goto 25
+	NEFields  goto 26
+	Field  goto 27
+
+
+state 10
+	ATerm : LPAREN . Term RPAREN  (22)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 28
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 11
+	%entry% : '\001' toplevel .  (39)
+
+	.  reduce 39
+
+
+state 12
+	toplevel : Command . SEMI toplevel  (2)
+
+	SEMI  shift 29
+	.  error
+
+
+state 13
+	Command : Term .  (3)
+
+	.  reduce 3
+
+
+state 14
+	Term : AppTerm .  (13)
+	AppTerm : AppTerm . PathTerm  (18)
+
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	THEN  reduce 13
+	ELSE  reduce 13
+	COMMA  reduce 13
+	RCURLY  reduce 13
+	RPAREN  reduce 13
+	SEMI  reduce 13
+
+	PathTerm  goto 30
+	ATerm  goto 16
+
+
+state 15
+	AppTerm : PathTerm .  (17)
+	PathTerm : PathTerm . DOT LCID  (19)
+	PathTerm : PathTerm . DOT INTV  (20)
+
+	DOT  shift 31
+	THEN  reduce 17
+	ELSE  reduce 17
+	TRUE  reduce 17
+	FALSE  reduce 17
+	LCID  reduce 17
+	COMMA  reduce 17
+	LCURLY  reduce 17
+	LPAREN  reduce 17
+	RCURLY  reduce 17
+	RPAREN  reduce 17
+	SEMI  reduce 17
+
+
+state 16
+	PathTerm : ATerm .  (21)
+
+	.  reduce 21
+
+
+state 17
+	Term : LAMBDA LCID . COLON Type DOT Term  (14)
+
+	COLON  shift 32
+	.  error
+
+
+state 18
+	Term : LAMBDA USCORE . COLON Type DOT Term  (15)
+
+	COLON  shift 33
+	.  error
+
+
+state 19
+	ATerm : LCID .  (23)
+
+	.  reduce 23
+
+
+state 20
+	Term : IF Term . THEN Term ELSE Term  (16)
+
+	THEN  shift 34
+	.  error
+
+
+state 21
+	Binder : COLON . Type  (5)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	Type  goto 39
+	ArrowType  goto 40
+	AType  goto 41
+
+
+state 22
+	Command : LCID Binder .  (4)
+
+	.  reduce 4
+
+
+state 23
+	ATerm : LCID .  (23)
+	Field : LCID . EQ Term  (31)
+
+	EQ  shift 42
+	TRUE  reduce 23
+	FALSE  reduce 23
+	LCID  reduce 23
+	COMMA  reduce 23
+	DOT  reduce 23
+	LCURLY  reduce 23
+	LPAREN  reduce 23
+	RCURLY  reduce 23
+
+
+state 24
+	Field : Term .  (32)
+
+	.  reduce 32
+
+
+state 25
+	ATerm : LCURLY Fields . RCURLY  (24)
+
+	RCURLY  shift 43
+	.  error
+
+
+state 26
+	Fields : NEFields .  (28)
+
+	.  reduce 28
+
+
+state 27
+	NEFields : Field .  (29)
+	NEFields : Field . COMMA NEFields  (30)
+
+	COMMA  shift 44
+	RCURLY  reduce 29
+
+
+state 28
+	ATerm : LPAREN Term . RPAREN  (22)
+
+	RPAREN  shift 45
+	.  error
+
+
+state 29
+	toplevel : Command SEMI . toplevel  (2)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 7
+	EOF  shift 8
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	toplevel  goto 46
+	Command  goto 12
+	Term  goto 13
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 30
+	AppTerm : AppTerm PathTerm .  (18)
+	PathTerm : PathTerm . DOT LCID  (19)
+	PathTerm : PathTerm . DOT INTV  (20)
+
+	DOT  shift 31
+	THEN  reduce 18
+	ELSE  reduce 18
+	TRUE  reduce 18
+	FALSE  reduce 18
+	LCID  reduce 18
+	COMMA  reduce 18
+	LCURLY  reduce 18
+	LPAREN  reduce 18
+	RCURLY  reduce 18
+	RPAREN  reduce 18
+	SEMI  reduce 18
+
+
+state 31
+	PathTerm : PathTerm DOT . LCID  (19)
+	PathTerm : PathTerm DOT . INTV  (20)
+
+	LCID  shift 47
+	INTV  shift 48
+	.  error
+
+
+state 32
+	Term : LAMBDA LCID COLON . Type DOT Term  (14)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	Type  goto 49
+	ArrowType  goto 40
+	AType  goto 41
+
+
+state 33
+	Term : LAMBDA USCORE COLON . Type DOT Term  (15)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	Type  goto 50
+	ArrowType  goto 40
+	AType  goto 41
+
+
+state 34
+	Term : IF Term THEN . Term ELSE Term  (16)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 51
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 35
+	AType : TTOP .  (8)
+
+	.  reduce 8
+
+
+state 36
+	AType : BOOL .  (10)
+
+	.  reduce 10
+
+
+state 37
+	AType : LCURLY . FieldTypes RCURLY  (9)
+	FieldTypes : .  (33)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCID  shift 52
+	LCURLY  shift 37
+	LPAREN  shift 38
+	RCURLY  reduce 33
+
+	Type  goto 53
+	ArrowType  goto 40
+	AType  goto 41
+	FieldTypes  goto 54
+	NEFieldTypes  goto 55
+	FieldType  goto 56
+
+
+state 38
+	AType : LPAREN . Type RPAREN  (7)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	Type  goto 57
+	ArrowType  goto 40
+	AType  goto 41
+
+
+state 39
+	Binder : COLON Type .  (5)
+
+	.  reduce 5
+
+
+state 40
+	Type : ArrowType .  (6)
+
+	.  reduce 6
+
+
+state 41
+	ArrowType : AType . ARROW ArrowType  (11)
+	ArrowType : AType .  (12)
+
+	ARROW  shift 58
+	COMMA  reduce 12
+	DOT  reduce 12
+	RCURLY  reduce 12
+	RPAREN  reduce 12
+	SEMI  reduce 12
+
+
+state 42
+	Field : LCID EQ . Term  (31)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 59
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 43
+	ATerm : LCURLY Fields RCURLY .  (24)
+
+	.  reduce 24
+
+
+state 44
+	NEFields : Field COMMA . NEFields  (30)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 23
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 24
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+	NEFields  goto 60
+	Field  goto 27
+
+
+state 45
+	ATerm : LPAREN Term RPAREN .  (22)
+
+	.  reduce 22
+
+
+state 46
+	toplevel : Command SEMI toplevel .  (2)
+
+	.  reduce 2
+
+
+state 47
+	PathTerm : PathTerm DOT LCID .  (19)
+
+	.  reduce 19
+
+
+state 48
+	PathTerm : PathTerm DOT INTV .  (20)
+
+	.  reduce 20
+
+
+state 49
+	Term : LAMBDA LCID COLON Type . DOT Term  (14)
+
+	DOT  shift 61
+	.  error
+
+
+state 50
+	Term : LAMBDA USCORE COLON Type . DOT Term  (15)
+
+	DOT  shift 62
+	.  error
+
+
+state 51
+	Term : IF Term THEN Term . ELSE Term  (16)
+
+	ELSE  shift 63
+	.  error
+
+
+state 52
+	FieldType : LCID . COLON Type  (37)
+
+	COLON  shift 64
+	.  error
+
+
+state 53
+	FieldType : Type .  (38)
+
+	.  reduce 38
+
+
+state 54
+	AType : LCURLY FieldTypes . RCURLY  (9)
+
+	RCURLY  shift 65
+	.  error
+
+
+state 55
+	FieldTypes : NEFieldTypes .  (34)
+
+	.  reduce 34
+
+
+state 56
+	NEFieldTypes : FieldType .  (35)
+	NEFieldTypes : FieldType . COMMA NEFieldTypes  (36)
+
+	COMMA  shift 66
+	RCURLY  reduce 35
+
+
+state 57
+	AType : LPAREN Type . RPAREN  (7)
+
+	RPAREN  shift 67
+	.  error
+
+
+state 58
+	ArrowType : AType ARROW . ArrowType  (11)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	ArrowType  goto 68
+	AType  goto 41
+
+
+state 59
+	Field : LCID EQ Term .  (31)
+
+	.  reduce 31
+
+
+state 60
+	NEFields : Field COMMA NEFields .  (30)
+
+	.  reduce 30
+
+
+state 61
+	Term : LAMBDA LCID COLON Type DOT . Term  (14)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 69
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 62
+	Term : LAMBDA USCORE COLON Type DOT . Term  (15)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 70
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 63
+	Term : IF Term THEN Term ELSE . Term  (16)
+
+	LAMBDA  shift 3
+	IF  shift 4
+	TRUE  shift 5
+	FALSE  shift 6
+	LCID  shift 19
+	LCURLY  shift 9
+	LPAREN  shift 10
+	.  error
+
+	Term  goto 71
+	AppTerm  goto 14
+	PathTerm  goto 15
+	ATerm  goto 16
+
+
+state 64
+	FieldType : LCID COLON . Type  (37)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	Type  goto 72
+	ArrowType  goto 40
+	AType  goto 41
+
+
+state 65
+	AType : LCURLY FieldTypes RCURLY .  (9)
+
+	.  reduce 9
+
+
+state 66
+	NEFieldTypes : FieldType COMMA . NEFieldTypes  (36)
+
+	TTOP  shift 35
+	BOOL  shift 36
+	LCID  shift 52
+	LCURLY  shift 37
+	LPAREN  shift 38
+	.  error
+
+	Type  goto 53
+	ArrowType  goto 40
+	AType  goto 41
+	NEFieldTypes  goto 73
+	FieldType  goto 56
+
+
+state 67
+	AType : LPAREN Type RPAREN .  (7)
+
+	.  reduce 7
+
+
+state 68
+	ArrowType : AType ARROW ArrowType .  (11)
+
+	.  reduce 11
+
+
+state 69
+	Term : LAMBDA LCID COLON Type DOT Term .  (14)
+
+	.  reduce 14
+
+
+state 70
+	Term : LAMBDA USCORE COLON Type DOT Term .  (15)
+
+	.  reduce 15
+
+
+state 71
+	Term : IF Term THEN Term ELSE Term .  (16)
+
+	.  reduce 16
+
+
+state 72
+	FieldType : LCID COLON Type .  (37)
+
+	.  reduce 37
+
+
+state 73
+	NEFieldTypes : FieldType COMMA NEFieldTypes .  (36)
+
+	.  reduce 36
+
+
+53 terminals, 18 nonterminals
+40 grammar rules, 74 states

@@ -16,10 +16,7 @@ main ();;
 
 (*
 The program above is compiled and executed with the following shell commands:
-$ ocamlc -o fib fib.ml
+$ ocamlc fib.ml -o fib
 $ ./fib 10
-89
-$ ./fib 20
-10946
 *)
 
