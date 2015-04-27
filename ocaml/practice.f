@@ -1,4 +1,10 @@
-(*learn and practice ocaml*)
+(*=============================================================================
+# Filename: practice.f
+# Author: syzz
+# Mail: 1181955272@qq.com
+# Last Modified: 2015-04-27 12:40
+# Description: learn and practice ocaml 
+=============================================================================*)
 
 
 
