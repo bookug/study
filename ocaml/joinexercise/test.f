@@ -20,3 +20,5 @@ lambda x:Bool. x;
 
 
 if true then {x=true,y=false,a=false} else {y=false,x={},b=false};
+
+if ((lambda x:Bool. x) false) then {x=true,y=false,a=false} else {y=false,x={},b=false};

@@ -75,10 +75,54 @@ let rec subtype tyS tyT =
        false
 
 let rec join tyS tyT =
-  (* Write me *) assert false
+  if subtype  tyS tyT then tyT else 
+  if subtype  tyT tyS then tyS else
+  match (tyS,tyT) with
+    (TyRecord(fS), TyRecord(fT)) ->
+      let labelsS = List.map (fun (li,_) -> li) fS in
+      let labelsT = List.map (fun (li,_) -> li) fT in
+      let commonLabels = 
+        List.find_all (fun l -> List.mem l labelsT) labelsS in
+      let commonFields = 
+        List.map (fun li -> 
+                    let tySi = List.assoc li fS in
+                    let tyTi = List.assoc li fT in
+                    (li, join tySi tyTi))
+                 commonLabels in
+      TyRecord(commonFields)
+  | (TyArr(tyS1,tyS2),TyArr(tyT1,tyT2)) ->  
+      (try TyArr(meet tyS1 tyT1, join tyS2 tyT2)
+        with Not_found -> TyTop)
+  | _ -> TyTop
 
 and meet tyS tyT =
-  (* Write me *) assert false
+  if subtype tyS tyT then tyS else 
+  if subtype tyT tyS then tyT else 
+  match (tyS,tyT) with
+    (TyRecord(fS), TyRecord(fT)) ->
+      let labelsS = List.map (fun (li,_) -> li) fS in
+      let labelsT = List.map (fun (li,_) -> li) fT in
+      let allLabels = 
+        List.append
+          labelsS 
+          (List.find_all 
+            (fun l -> not (List.mem l labelsS)) labelsT) in
+      let allFields = 
+        List.map (fun li -> 
+                    if List.mem li allLabels then
+                      let tySi = List.assoc li fS in
+                      let tyTi = List.assoc li fT in
+                      (li, meet tySi tyTi)
+                    else if List.mem li labelsS then
+                      (li, List.assoc li fS)
+                    else
+                      (li, List.assoc li fT))
+                 allLabels in
+      TyRecord(allFields)
+  | (TyArr(tyS1,tyS2),TyArr(tyT1,tyT2)) ->
+      TyArr(join tyS1 tyT1, meet tyS2 tyT2)
+  | _ -> raise Not_found
+
 
 (* ------------------------   TYPING  ------------------------ *)
 
@@ -112,4 +156,10 @@ let rec typeof ctx t =
   | TmFalse(fi) -> 
       TyBool
   | TmIf(fi,t1,t2,t3) ->
-      (* write me *) assert false
+      let tyT1 = typeof ctx t1 in
+      let tyT2 = typeof ctx t2 in
+      let tyT3 = typeof ctx t3 in
+      if subtype tyT1 TyBool then
+      join tyT2 tyT3
+      else error fi "Expected boolean type"    
+
