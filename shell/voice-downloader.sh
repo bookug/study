@@ -2,10 +2,12 @@
 #this program is used to finish homework 1.1
 #according to a word book, download English and American voice for choosen word
 
+#wget: --header for ip; --url for search-engine
+
 function random()			#this function is not used, just for fun
 {		#if not return explictly, using the last expression-value as ret
 	t=`expr $2 - $1`;
-	t=`expr $RANDOM % $t`;
+	t=`expr $RANDOM % $t`;	#BETTER: not so good!
 	t=`expr $1 + $t`;	
 	return $t;				#use $? to get the return-value
 }
