@@ -6,7 +6,7 @@ import datetime
 import time
 
 root = Tk()
-root.title(unicode('chating with XXX','eucgb2312_cn'))
+root.title(unicode('chating with XXX','utf-8'))
 
 #send-button event
 def sendmessage():
@@ -24,7 +24,7 @@ frame_right = Frame(width=170, height=400, bg='white')
 
 #create elements needed
 text_msglist    = Text(frame_left_top)
-text_msg      = Text(frame_left_center);
+text_msg      = Text(frame_left_center)
 button_sendmsg   = Button(frame_left_bottom, text=unicode('send','eucgb2312_cn'), command=sendmessage)
 
 #create a green tag
