@@ -6,7 +6,7 @@ from Tkinter import *							#import functions only when necessary
 
 url0 = "http://site.baidu.com"					#begin from a navigate page
 global MAXNUM									#the max num of web pages to visit
-MAXNUM = 1000					
+MAXNUM = 300					
 global urlnum									#urls already visited successfully
 urlnum = 0;
 urlslist = []									#list to store url, here is like queue
@@ -15,7 +15,7 @@ dict_jquery = {}								#just like map in C++
 #BETTER: when libs are too many, use map and struct to simplify code
 #compile regex will save time
 reg_link = re.compile(r'href="(https?://.+?)"')
-reg_jquery = re.compile(r'<script .*?src=".+?jquery', re.IGNORECASE)
+reg_jquery = re.compile(r'<script .*?src=".+?jquery', re.IGNORECASE) 
 reg_prototype = re.compile(r'<script .*?src=".+?prototype', re.IGNORECASE)
 reg_moontools = re.compile(r'<script .*?src=".+?moontools', re.IGNORECASE)
 reg_dojo = re.compile(r'<script .*?src=".+?dojo', re.IGNORECASE)
