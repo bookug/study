@@ -154,6 +154,13 @@ int stud_slide_window_stop_and_wait(char *pBuffer, int bufferSize, UINT8 message
 	return 0;
 }
 
+//NOTICE: returned message(not SEND) will be one by one, that is, ack or timeout will be
+//x before receiving x+1 ack or timeout. (and if not, ignore, nonsense)
+//When ack is x, it should be exactly the top of queue, pop and send if needed.
+//When timeout seq is x, keep in mind that all in send-window should be resent!
+//(because frames before x is not acked, that is, also time-out! the receive-window need
+//to keep the frame order!)
+
 /*
 * ªÿÕÀn÷°≤‚ ‘∫Ø ˝
 */
@@ -170,7 +177,7 @@ int stud_slide_window_back_n_frame(char *pBuffer, int bufferSize, UINT8 messageT
 		if(queue.count() <= WINDOW_SIZE_BACK_N_FRAME)
 			SendFRAMEPacket((unsigned char*)pBuffer, (unsigned)bufferSize);
 		break;
-	case MSG_TYPE_RECEIVE:	//QUERY: not on order, then? same question in next func
+	case MSG_TYPE_RECEIVE:	
 		tack = ((frame*)pBuffer)->head.ack;
 		if(tack == queue.top()->fp->head.seq)	//both are big-endian
 		{
@@ -206,7 +213,8 @@ int stud_slide_window_back_n_frame(char *pBuffer, int bufferSize, UINT8 messageT
 			unsigned t = queue.count();
 			if(t > WINDOW_SIZE_BACK_N_FRAME)
 				t = WINDOW_SIZE_BACK_N_FRAME;
-			queue.send(ret, t-ret);
+			//queue.send(ret, t-ret);
+			queue.send(0, t);
 		}
 		break;
 	default:
