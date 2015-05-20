@@ -39,6 +39,10 @@ public:
 		fp = new frame;
 		*fp = *(frame*)_fp;
 	}
+	~Buffer()
+	{
+		delete fp;
+	}
 };
 
 //implement a cycle queue struct for moving frames
@@ -76,6 +80,7 @@ public:
 	{
 		if(this->isEmpty())
 			return;
+   		delete this->q[head];
 		head = (head + 1) % MAX_QUEUE_LEN;
 		num--;
 	}
@@ -179,15 +184,6 @@ int stud_slide_window_back_n_frame(char *pBuffer, int bufferSize, UINT8 messageT
 		break;
 	case MSG_TYPE_RECEIVE:	
 		tack = ((frame*)pBuffer)->head.ack;
-		if(tack == queue.top()->fp->head.seq)	//both are big-endian
-		{
-			queue.pop();
-			if(queue.count() >= WINDOW_SIZE_BACK_N_FRAME)
-			{
-				queue.send(WINDOW_SIZE_BACK_N_FRAME - 1, 1);
-			}
-		}
-		/*
 		ret = queue.find(tack, WINDOW_SIZE_BACK_N_FRAME);		//both are big-endian
 		if(ret >= 0)					//successfully found
 		{
@@ -203,7 +199,6 @@ int stud_slide_window_back_n_frame(char *pBuffer, int bufferSize, UINT8 messageT
 				queue.send(WINDOW_SIZE_BACK_N_FRAME-num, t);
 			}
 		}
-		*/
 		break;
 	case MSG_TYPE_TIMEOUT:
 		tseq = htonl(*(UINT32*)pBuffer);
@@ -228,7 +223,7 @@ int stud_slide_window_back_n_frame(char *pBuffer, int bufferSize, UINT8 messageT
 */
 int stud_slide_window_choice_frame_resend(char *pBuffer, int bufferSize, UINT8 messageType)
 {
-	unsigned tseq, tack;
+	unsigned tack;
       unsigned tkind;	//frame_kind
 	Buffer* p;
 	int ret;
@@ -245,36 +240,26 @@ int stud_slide_window_choice_frame_resend(char *pBuffer, int bufferSize, UINT8 m
 		if(tkind == ack)
 		{
 			tack = ((frame*)pBuffer)->head.ack;
-			if(tack == queue.top()->fp->head.seq)	//both are big-endian
-			{
-				queue.pop();
-				if(queue.count() >= WINDOW_SIZE_CHOICE_FRAME_RESEND)
-				{
-					queue.send(WINDOW_SIZE_CHOICE_FRAME_RESEND - 1, 1);
-				}
-			}
-			/*
-			queue.find(tack, WINDOW_SIZE_CHOICE_FRAME_RESEND);
+			ret = queue.find(tack, WINDOW_SIZE_CHOICE_FRAME_RESEND);
 			if(ret >= 0)
 			{
 				unsigned t = queue.count(), i;
 				unsigned num = ret + 1;
 				for(i = 0; i < num; ++i)
 					queue.pop();
-				if(t > WINDOW_SIZE_BACK_N_FRAME)
+				if(t > WINDOW_SIZE_CHOICE_FRAME_RESEND)
 				{
-					t -= WINDOW_SIZE_BACK_N_FRAME;
+					t -= WINDOW_SIZE_CHOICE_FRAME_RESEND;
 					if(num < t)
 						t = num;
-					queue.send(WINDOW_SIZE_BACK_N_FRAME-num, t);
+					queue.send(WINDOW_SIZE_CHOICE_FRAME_RESEND-num, t);
 				}
 			}
-			*/
 		}
 		else if(tkind == nak)
 		{
-			tseq = ((frame*)pBuffer)->head.seq;
-			ret = queue.find(tseq, WINDOW_SIZE_CHOICE_FRAME_RESEND);
+			tack = ((frame*)pBuffer)->head.ack;
+			ret = queue.find(tack, WINDOW_SIZE_CHOICE_FRAME_RESEND);
 			queue.send(ret, 1);
 		}
 		break;
