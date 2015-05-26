@@ -6,7 +6,7 @@ from Tkinter import *							#import functions only when necessary
 
 url0 = "http://site.baidu.com"					#begin from a navigate page
 global MAXNUM									#the max num of web pages to visit
-MAXNUM = 300					
+MAXNUM = 100					
 global urlnum									#urls already visited successfully
 urlnum = 0;
 urlslist = []									#list to store url, here is like queue
