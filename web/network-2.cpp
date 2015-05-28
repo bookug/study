@@ -45,7 +45,7 @@ int stud_ip_recv(char *pBuffer,unsigned short length)
 		ip_DiscardPkt(pBuffer, STUD_IP_TEST_DESTINATION_ERROR);
 		return 1;
 	}
-//checksum: use 32-bit num to add each byte in header, compressed to 16-bit(at most 2 steps), ~
+
 	sum = 0;
 	ihl *= 4;
 	for(i = 0; i < ihl; ++i)
@@ -61,14 +61,27 @@ int stud_ip_recv(char *pBuffer,unsigned short length)
 	}
 
 	ip_SendtoUp(pBuffer, length);		//QUERY: pBuffer?
-
 	return 0;
 }
 
 int stud_ip_Upsend(char *pBuffer,unsigned short len,unsigned int srcAddr,
 				   unsigned int dstAddr,byte protocol,byte ttl)
 {
-	//QUERY: copy and write?	
+	unsigned newlen = 5 * 4 + len;
+	char* newpBuffer = (char*)malloc(newlen);
+	memcpy(newpBuffer + 20, pBuffer, len);
+	*newpBuffer = (4 << 4) + 5;
+	srand(NULL);
+	*((unsigned short*)(newpBuffer + 4)) = rand();
+	*(newpBuffer + 8) = ttl;
+	*(newpBuffer + 9) = protocol;
+	*((unsigned*)newpBuffer + 3) = htonl(srcAddr);
+	*((unsigned*)newpBuffer + 4) = htonl(dstAddr);
+
+	//TODO: compute the check-sum
+
+	ip_SendtoLower(newpBuffer, newlen);
 
 	return 0;
 }
+
