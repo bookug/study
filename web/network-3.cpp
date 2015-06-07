@@ -26,14 +26,14 @@ unsigned short computeCheckSum(char* p, unsigned ihl)
 		}
 	return 0xffff - (unsigned short)sum;	//~(unsigned short)sum
 }
-
+/*
 typedef struct stud_route_msg
 {
 	unsigned dest;
 	unsigned masklen;
 	unsigned nexthop;
 }stud_route_msg;
-
+*/
 typedef struct route_table_item
 {
 	unsigned dest_ip;
@@ -90,7 +90,7 @@ int stud_fwd_deal(char *pBuffer, int length)
 {
 	unsigned short ihl = (*pBuffer) & 0xf, tlive = *(pBuffer + 8);
 	unsigned short checksum;
-	unsigned addr = ntohl(*((unsigned*)pBuffer + 4
+	unsigned addr = ntohl(*((unsigned*)pBuffer + 4));
 
 	//if need to check: checksum, ihl or others
 
@@ -108,7 +108,8 @@ int stud_fwd_deal(char *pBuffer, int length)
 
 	//find the longest masklen match
 	unsigned maxMasklen = 0;
-	unsigned i, j = route_table.size(), ans = -1;
+	unsigned i, j = route_table.size();
+	int ans = -1;
 	route_table_item route_item;
 	for(i = 0; i < j; ++i)
 	{
@@ -135,4 +136,3 @@ int stud_fwd_deal(char *pBuffer, int length)
 	fwd_SendtoLower(newpBuffer, length, route_table.get(ans).nexthop);
 	return 0;
 }
-
