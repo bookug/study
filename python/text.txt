@@ -1,0 +1,1 @@
+score  line  time  scorePtime  linePtime  scorePline  date/n10       1       29.00   0.34          0.03         10.00         2015-06-08 22:27:04/n
