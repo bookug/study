@@ -86,7 +86,7 @@ let translate_builtin_and_uninterpreted fn_name translated_arg_list =
 		| _ ->
 	let args = String.concat " " translated_arg_list in
 	match fn_name with
-		| "unary-" -> "(- " ^ args ^ ")"
+(*		| "unary-" -> "(- " ^ args ^ ")"        *)
 		| "%" -> "(mod " ^ args ^ ")"
 		| "!=" -> "(not (= " ^ args ^ "))"
 		| "==" -> "(= " ^ args ^ ")"

@@ -3,7 +3,7 @@ type solver = Standard | NLSat | Both
 
 
 let log_Z3_input = false
-let solver = Both
+let solver = Standard
 
 let info = ref None
 let log = ref ""
