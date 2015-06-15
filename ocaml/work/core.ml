@@ -19,7 +19,7 @@ open Infer
 			("*", "(int, int) -> int");
 			("/", "(int, i : int if i != 0) -> int");
             ("%", "(int, i : int if i != 0) -> int");
-            (*("unary-", "int -> int");*)
+            ("unary-", "int -> int");
 		]
 
 	let uninterpreted = [
@@ -35,16 +35,16 @@ open Infer
         *)
 			("head", "forall[t] (a : array[t] if length(a) > 0) -> t");
 			("is_empty", "forall[t] (a : array[t]) -> (b : bool if b == (length(a) == 0))");
-		(*	("head1", "forall[t] (a : array[t] if not is_empty(a)) -> t");
+			("head1", "forall[t] (a : array[t] if not is_empty(a)) -> t");
 			("fac", "(i : int if i >= 0) -> (j : int if j > 0 and j >= i)");
-        *)
+        
 			("succ", "(i : int) -> (j : int if j == i + 1)");
 			("square", "(i : int) -> (j : int if j == i * i)");
 			("random1toN", "(N : int if N >= 1) -> (i : int if 1 <= i and i <= N)");
 			("my_not", "(b : bool) -> (c : bool if c == (not b))");
 
 			("make_const", "forall[a b] (x : a) -> b -> (y : a if y == x)");
-(*
+
 			("pair", "forall[t s] (t, s) -> pair[t, s]");
 			("first", "forall[t s] pair[t, s] -> t");
 			("second", "forall[t s] pair[t, s] -> s");
@@ -57,7 +57,7 @@ open Infer
 			("choose", "forall[a] (x : a, y : a) -> (z : a if z == x or z == y)");
 			("plain_choose", "forall[a] (a, a) -> a");
 			("choose_curry", "forall[a] (x : a) -> (y : a) -> (z : a if z == x or z == y)");
-			("plain_choose_curry", "forall[a] a -> a -> a");*)
+			("plain_choose_curry", "forall[a] a -> a -> a");
 		]
 
 

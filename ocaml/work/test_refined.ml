@@ -69,16 +69,16 @@ let test_cases = [
 		("fun(a, def) -> let l = length(a) + 1 in if l >= 2 then get(a, 0) else def", OK);
 		("fun(a) -> head(a)", wrong);
 		("fun(a) -> if length(a) >= 1 then head(a) else -1", OK);
-        (*
+
 		("fun(a) -> if length(a) >= 1 then head1(a) else -1", OK);
 		("fun(a) -> if not is_empty(a) then head1(a) else -1", OK);
 		("fun(a) -> if my_not(is_empty(a)) then head1(a) else -1", OK);
 		("fun(a) -> if is_empty(a) then head1(a) else -1", wrong);
 		("fun(a : some[b] b if length(a) >= 1) -> head1(a)", OK);
-        *)
+
 		("fun(a) -> if is_empty(a) then -1 else head(a)", OK);
 		("fun(a : some[b] b if my_not(is_empty(a))) -> head(a)", OK);
-        (*
+
 		("1 : int if choose(1, 1) == 1", OK);
 		("let a = plain_choose(1, 1) in a == 1", OK);
 		("let f = choose_curry(2) in " ^
@@ -89,7 +89,7 @@ let test_cases = [
 		 "let a = f(3) + f(5) in " ^
 		 "if not ((a == 3 or a == 5) or (a == 7 or a == 8)) " ^
 		 "then 1 / 0 else 1", wrong);
-         *)
+
 
 		(* nil is a primitive constant *)
 		("if nil == nil then 1 else 0", OK);
@@ -182,7 +182,7 @@ let test_cases = [
 		("succ : (x : int if x > 0) -> (y : int if y > 2)", wrong);
 		("let a = 1 in succ : (x : int if x > 0) -> (y : int if y > a)", OK);
 		("let a = 2 in succ : (x : int if x > 0) -> (y : int if y > a)", wrong);
-        (*
+
 		("let a = 0 in fac : (x : int if x >= a) -> int", OK);
 		("let a = -1 in fac : (x : int if x >= a) -> int", wrong);
 		("fac : (a : int if a >= 0) -> int", OK);
@@ -202,7 +202,7 @@ let test_cases = [
 		 "else " ^
 		 " let f = fac : (a : int if a >= 0) -> (z : int if z > x) in " ^
 		 " f(-x)", OK);
-         *)
+
 		("make_const(1) : int -> (x : int if x >= 0)", OK);
 		("make_const(-1) : int -> (x : int if x >= 0)", wrong);
 		("make_const(1) : int -> (x : int if x >= 2)", wrong);
