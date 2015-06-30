@@ -1,4 +1,6 @@
 # compiled file
+*.o
+*.i
 *.cmi
 *.cmo
 
