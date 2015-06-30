@@ -25,6 +25,23 @@ extern unsigned int getIpv4Address();
 
 extern unsigned int getServerIpv4Address();
 
+enum TcpState { CLOSED, SYN_SENT, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, TIME_WAIT };
+
+typedef struct Tcb
+{
+	TcpState state;
+	unsigned client_ip;
+	unsigned server_ip;
+	unsigned short client_port;
+	unsigned short server_port;
+	unsigned seq, ack;
+	unsigned char flag;
+	int io_type, if_used, data_ack;
+	unsigned char[2048];
+	unsigned short data_len;
+}Tcb;
+Tcb tcblist[MAX_TCP_CONNECTIONS];
+
 int stud_tcp_input(char *pBuffer, unsigned short len, unsigned int srcAddr, unsigned int dstAddr)
 {
 	return 0;
