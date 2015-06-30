@@ -35,14 +35,14 @@ enum TcpState { CLOSED, SYN_SENT, ESTABLISHED, FIN_WAIT1, FIN_WAIT2, TIME_WAIT }
 
 typedef struct Tcb
 {
+	bool is_used;
 	unsigned srcAddr;
 	unsigned dstAddr;
-	unsigned seq, ack;
 	unsigned short srcPort;
 	unsigned short dstPort;
+	unsigned seq, ack;
 	unsigned short window_size;
 	TcpState state;
-	bool is_used;
 }Tcb;
 Tcb tcblist[MAX_TCP_CONNECTION_NUM];
 
@@ -80,11 +80,14 @@ int current_sockfd = -1;
  * ~a = b <-> ~(a+b) = 0
  */
 unsigned short
-computeCheckSum(Pkt* p1, char* p2, unsigned short len)
+computeCheckSum(Header* p1, char* p2, unsigned short len)
 {							//all Internet bytes
 	unsigned sum = 0, i;	//sum need to be unsigned
 	unsigned short* p = (unsigned short*)p1;
 	for(i = 0; i < 6; ++i, ++p)
+		sum = (sum + (*p)) % 0xffff;
+	len /= 2;
+	for(i = 0, p = (unsigned short*)p2; i < len; ++i, ++p)
 		sum = (sum + (*p)) % 0xffff;
 	return 0xffff - sum;
 }
@@ -94,13 +97,13 @@ stud_tcp_input(char *pBuffer, unsigned short len, unsigned int srcAddr, unsigned
 {
 	Header head;
 	Pkt* ppkt = (Pkt*)pBuffer;
-	head.srcAddr = htonl(tcblist[current_sockfd].client_ip);
-	head.dstAddr = htonl(tcblist[current_sockfd].server_ip);
+	head.srcAddr = htonl(tcblist[current_sockfd].srcAddr);
+	head.dstAddr = htonl(tcblist[current_sockfd].dstAddr);
 	head.mbz = 0;
 	head.protocol = IPPROTO_TCP;
 	head.len = htons(MIN_TCP_HEADER_SIZE);
 	//compare the checksum
-	if(computeCheckSum(&head, pBuffer, len) != 0)
+	if(computeCheckSum(&head, pBuffer, len) != 0xffff)
 		return -1;
 	//check the seq and ack
 	unsigned t = (tcblist[current_sockfd].state == FIN_WAIT2)?0:1;
@@ -121,7 +124,7 @@ stud_tcp_input(char *pBuffer, unsigned short len, unsigned int srcAddr, unsigned
 			tcblist[current_sockfd].state = TIME_WAIT;
 			break;
 		case SYN_SENT:
-			tcblist[current_sockfd].state = SYN_SENT;
+			tcblist[current_sockfd].state = ESTABLISHED;
 			break;
 		default:
 			return -1;
@@ -161,9 +164,9 @@ stud_tcp_output(char *pData, unsigned short len, unsigned char flag, unsigned sh
 	ppkt->dstPort = htons(tcblist[current_sockfd].dstPort);
 	ppkt->seq = htonl(tcblist[current_sockfd].seq);
 	ppkt->ack = htonl(tcblist[current_sockfd].ack);
-	ppkt->hdr_len = 0x50;	//QUERY: why?
-	ppkt->flag = flag;
-	ppkt->window = htons(1);
+	ppkt->hdr_len = 0x50;		//4-bit for header len, it's 5 * 4-bytes
+	ppkt->flag = flag;		//just one byte
+	ppkt->window_size = htons(1);
 	ppkt->urg_ptr = 0;
 	Header head;
 	head.srcAddr = htonl(tcblist[current_sockfd].srcAddr);
@@ -171,8 +174,9 @@ stud_tcp_output(char *pData, unsigned short len, unsigned char flag, unsigned sh
 	head.mbz = 0;
 	head.protocol = IPPROTO_TCP;
 	head.len = htons(MIN_TCP_HEADER_SIZE + len);
-	ppkt->checksum = computeCheckSum(&head, ppkt, MIN_TCP_HEADER_SIZE + len);
-	tcp_sendIpPkt(ppkt, MIN_TCP_HEADER_SIZE + len, srcAddr, dstAddr, DEFAULT_TTL);
+	ppkt->checksum = 0;	//this is must needed!
+	ppkt->checksum = computeCheckSum(&head, (char*)ppkt, MIN_TCP_HEADER_SIZE + len);
+	tcp_sendIpPkt((unsigned char*)ppkt, MIN_TCP_HEADER_SIZE + len, srcAddr, dstAddr, DEFAULT_TTL);
 }
 
 int 
@@ -183,11 +187,11 @@ stud_tcp_socket(int domain, int type, int protocol)
 	//NOTICE: sockfd 0 is assigned to system communication
 	unsigned i;
 	for(i = 1; i < MAX_TCP_CONNECTION_NUM; ++i)
-		if(tcblist[i].used == false)
+		if(tcblist[i].is_used == false)
 			break;
 	if(i == MAX_TCP_CONNECTION_NUM)
 		return -1;
-	tcblist[i].used = true;
+	tcblist[i].is_used = true;
 	tcblist[i].window_size = 1;
 	tcblist[i].seq = seqNum;
 	tcblist[i].ack = ackNum;
@@ -214,7 +218,7 @@ stud_tcp_connect(int sockfd, struct sockaddr_in *addr, int addrlen)
 	Pkt* ppkt = new Pkt;
 	while(true)
 	{
-		if(waitIpPacket(ppkt, MAX_TIME_OUT) != -1)
+		if(waitIpPacket((char*)ppkt, MAX_TIME_OUT) != -1)
 			break;
 	}
 	//deal with the SYN_ACK package received
@@ -239,12 +243,12 @@ stud_tcp_send(int sockfd, const unsigned char *pData, unsigned short datalen, in
 		return -1;
 	else
 		tcblist[current_sockfd].window_size = 0;
-	stud_tcp_output(pData, datalen, PACKET_TYPE_DATA, tcblist[current_sockfd].srcPort, tcblist[current_sockfd].dstPort, tcblist[current_sockfd].srcAddr, tcblist[current_sockfd].dstAddr);
+	stud_tcp_output((char*)pData, datalen, PACKET_TYPE_DATA, tcblist[current_sockfd].srcPort, tcblist[current_sockfd].dstPort, tcblist[current_sockfd].srcAddr, tcblist[current_sockfd].dstAddr);
 	//wait for server's ack package
 	Pkt* ppkt = new Pkt;
 	while(true)
 	{
-		if(waitIpPacket(ppkt, MAX_TIME_OUT) != -1)
+		if(waitIpPacket((char*)ppkt, MAX_TIME_OUT) != -1)
 			break;
 	}
 	//deal with ack package received, if carried
@@ -252,7 +256,7 @@ stud_tcp_send(int sockfd, const unsigned char *pData, unsigned short datalen, in
 	{
 		if(ntohl(ppkt->ack) != (tcblist[current_sockfd].seq + datalen))
 		{
-			tcp_DiscardPkt(ppkt, STUD_TCP_TEST_SEQNO_ERROR);
+			tcp_DiscardPkt((char*)ppkt, STUD_TCP_TEST_SEQNO_ERROR);
 			return -1;
 		}
 		tcblist[current_sockfd].ack = ntohl(ppkt->seq) + datalen;
@@ -273,7 +277,7 @@ stud_tcp_recv(int sockfd, unsigned char *pData, unsigned short datalen, int flag
 	int size;
 	while(true)
 	{
-		if((size = waitIpPacket(ppkt, MAX_TIME_OUT)) != -1)
+		if((size = waitIpPacket((char*)ppkt, MAX_TIME_OUT)) != -1)
 			break;
 	}
 	size = (size > datalen)?datalen:size;
@@ -308,7 +312,7 @@ stud_tcp_close(int sockfd)
 	Pkt* ppkt = new Pkt;
 	while(true)
 	{
-		if(waitIpPacket(ppkt, MAX_TIME_OUT) != -1)
+		if(waitIpPacket((char*)ppkt, MAX_TIME_OUT) != -1)
 			break;
 	}
 	if(ppkt->flag != PACKET_TYPE_ACK)
@@ -320,7 +324,7 @@ stud_tcp_close(int sockfd)
 	tcblist[current_sockfd].state = FIN_WAIT2;
 	while(true)
 	{
-		if(waitIpPacket(ppkt, MAX_TIME_OUT) != -1)
+		if(waitIpPacket((char*)ppkt, MAX_TIME_OUT) != -1)
 			break;
 	}
 	if(ppkt->flag != PACKET_TYPE_FIN_ACK)
@@ -335,4 +339,3 @@ stud_tcp_close(int sockfd)
 	destroyTcb(current_sockfd);
 	return 0;
 }
-
