@@ -1,0 +1,1 @@
+score  line  time  scorePtime  linePtime  scorePline  date/n

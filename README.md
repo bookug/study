@@ -1,2 +1,1 @@
-# study
-data and code when studying languages
+Unix/Linux Coding Practice

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+        <title>数独</title>
+        <script src="/static/jquery.js" type="text/javascript"></script>
+        <script src="/static/layer.min.js" type="text/javascript"></script>
+        <script src="/static/sudoku.js" type="text/javascript"></script>
+        <link href="/static/sudoku.css" rel="stylesheet">  
+
+    </head>
+
+     <body>
+        <div id="allcontent">
+            <div id="header">
+                <h1 style="padding-top:25px;padding-left:10px">Crazy Sudoko</h1>
+            </div>
+
+            <div id="sidebar"> 
+                <ol id="numberBox" style="list-style-type: none; width: 90px; height: 90px;">
+                </ol>
+                <p style="text-indent:2em;font-size:large;margin-bottom:0;margin-top:20px">Time Taken:</p>
+                <div id="divTime"></div>
+                <input type="button" value="游戏说明"id="instruct"onclick="showInstruct()"><br> 
+                        <FORM name="frm" METHOD="get" ACTION="home.html" > 
+                            <INPUT TYPE="submit" value="返回首页"> 
+                        </FORM> 
+                        <input type="button" value="总英雄榜"id="hero" onclick="showHero()"/>
+                        <input type="button" value="英雄榜"id="h" onclick="showlocalHero()"/>
+            </div>
+
+                <ol id="player" style="list-style-type: none; width: 450px; height: 450px;"></ol>
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,49 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2014-11-23, 2:15:24
+    Author     : Ð¡ÃðÍ¯Ð¬
+*/
+h1{
+    position: absolute;
+    right :170px;
+    top:80px;
+    font-size:300%;
+    color:#ff8c00
+}
+#frm1{
+    position: absolute;
+    left: 660px;
+    top:250px;
+}
+#frm2{
+    position: absolute;
+    left: 690px;
+    top:350px;
+}
+#frm3{
+    position: absolute;
+    left: 740px;
+    top:450px;
+}
+input{
+    background: #34d939;
+    background-image: -webkit-linear-gradient(top, #34d939, #abb372);
+    background-image: -moz-linear-gradient(top, #34d939, #abb372);
+    background-image: -ms-linear-gradient(top, #34d939, #abb372);
+    background-image: -o-linear-gradient(top, #34d939, #abb372);
+    background-image: linear-gradient(to bottom, #34d939, #abb372);
+    -webkit-border-radius: 17;
+    -moz-border-radius: 17;
+    border-radius: 17px;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 20px;
+    padding: 10px 21px 7px 24px;
+    text-decoration: none;
+}
+
+

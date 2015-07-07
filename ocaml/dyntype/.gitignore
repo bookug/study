@@ -1,9 +1,0 @@
-lib_test/_tags
-_build/*
-.*.swp
-setup.data
-setup.bin
-setup.log
-*.byte
-*.native
-*~

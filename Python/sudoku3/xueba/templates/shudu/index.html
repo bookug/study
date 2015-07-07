@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block data %}
+    {% if beforeTitleNum%}
+    <h1><a href="/shudu/index?t={{ beforeTitleNum}}">上一题</a></h1>
+    {% endif %}
+<div id="infoTable">
+<table border="1" class="table table-bordered" >
+{% for data in dataList %}
+    <tr id="line{{ forloop.counter }}">
+    {% for node in data %}
+        {% if node == '0' %}
+            <td class="tdCss blockCss" id="num{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                <input type="text" maxlength="1" class="inputTd" id="input{{ forloop.parentloop.counter }}{{ forloop.counter }}" />
+            </td>
+        {% else %}
+            <td class="tdCss numCss" id="num{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+               {{ node }}
+            </td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+<h1><a href="/shudu/index?t={{ nextTitleNum}}">下一题</a></h1>
+</div>
+{% endblock %}
+
+{#javascript 脚本区#}
+{% block script %}
+<script type="text/javascript">
+$(document).ready(function(){
+    var titleNum = {{ titleNum }};
+    var dataList = initDataList();
+    function initDataList(){
+    var a = [];
+    var b = [];
+        {% for data in dataList %}
+            {% for node in data %}
+                b.push({{ node }});
+            {% endfor %}
+            a.push(b);
+            b = [];
+        {% endfor %}
+    return a;
+    }
+    console.log(dataList[0][0]);
+    //判断同一行出现相同的数字
+    function checkDataInRowArray(data,row,col){
+        for(var i=0;i<dataList.length;i++){
+            if(data == dataList[row][i]){
+                if(col != i){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    //判断同一列出现相同的数字
+    function checkDataInColArray(data,row,col){
+        for(var i=0;i<dataList.length;i++){
+            if(data == dataList[i][col]){
+                if(row != i){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    //判断同一块区域内出现相同的数字
+    function checkDataInZoneArray(data,row,col){
+        var zoneData = [];
+        var zone1 = [dataList[0][0],dataList[0][1],dataList[0][2],dataList[1][0],dataList[1][1],dataList[1][2],dataList[2][0],dataList[2][1],dataList[2][2]];
+        var zone2 = [dataList[0][3],dataList[0][4],dataList[0][5],dataList[1][3],dataList[1][4],dataList[1][5],dataList[2][3],dataList[2][4],dataList[2][5]];
+        var zone3 = [dataList[0][6],dataList[0][7],dataList[0][8],dataList[1][6],dataList[1][7],dataList[1][8],dataList[2][6],dataList[2][7],dataList[2][8]];
+
+        var zone4 = [dataList[3][0],dataList[3][1],dataList[3][2],dataList[4][0],dataList[4][1],dataList[4][2],dataList[5][0],dataList[5][1],dataList[5][2]];
+        var zone5 = [dataList[3][3],dataList[3][4],dataList[3][5],dataList[4][3],dataList[4][4],dataList[4][5],dataList[5][3],dataList[5][4],dataList[5][5]];
+        var zone6 = [dataList[3][6],dataList[3][7],dataList[3][8],dataList[4][6],dataList[4][7],dataList[4][8],dataList[5][6],dataList[5][7],dataList[5][8]];
+
+        var zone7 = [dataList[6][0],dataList[6][1],dataList[6][2],dataList[7][0],dataList[7][1],dataList[7][2],dataList[8][0],dataList[8][1],dataList[8][2]];
+        var zone8 = [dataList[6][3],dataList[6][4],dataList[6][5],dataList[7][3],dataList[7][4],dataList[7][5],dataList[8][3],dataList[8][4],dataList[8][5]];
+        var zone9 = [dataList[6][6],dataList[6][7],dataList[6][8],dataList[7][6],dataList[7][7],dataList[7][8],dataList[8][6],dataList[8][7],dataList[8][8]];
+
+        if(parseInt(row/3) == 0){
+            if(col/3 == 0){
+                zoneData = zone1;
+            }else if(col/3 == 1){
+                zoneData = zone2;
+            }else if(col/3 == 2){
+                zoneData = zone3;
+            }
+        }
+
+        if(parseInt(row/3) == 1){
+            if(col/3 == 0){
+                zoneData = zone4;
+            }else if(col/3 == 1){
+                zoneData = zone5;
+            }else if(col/3 == 2){
+                zoneData = zone6;
+            }
+        }
+
+        if(parseInt(row/3) == 2){
+            if(col/3 == 0){
+                zoneData = zone7;
+            }else if(col/3 == 1){
+                zoneData = zone8;
+            }else if(col/3 == 2){
+                zoneData = zone9;
+            }
+        }
+{#        zoneData = zone9;#}
+        //alert(zoneData);
+        for(var i=0;i<9;i++){
+            if(data == zoneData[i] && zoneData.indexOf(data) != i){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $("input").keyup(function(input){
+        var id = $(this).attr("id");
+
+        var inputVal = $("#"+id).val();
+        var row = parseInt(id[5]) - 1;
+        var col = parseInt(id[6]) - 1;
+        if(checkDataInRowArray(inputVal,row,col)||checkDataInColArray(inputVal,row,col)||checkDataInZoneArray(inputVal,row,col)){
+            $("#"+id).css({"backgroundColor":"red"});
+        }else{
+            $("#"+id).css({"backgroundColor":"#ffffff"});
+            dataList[row][col] = parseInt(inputVal);
+            sendDataToServer(dataList);
+        }
+        if(inputVal == "" || inputVal == " " || isNaN(inputVal)){
+            $("#"+id).css({"backgroundColor":"#ffffff"});
+            $("#"+id).val("");
+        }
+    });
+
+    //发送数据给服务端
+    function sendDataToServer(dataList){
+        console.log(dataList);
+        //alert(dataList.toString());
+        var data1 = {"dataList":dataList.toString(),"titleNum":titleNum};
+        $.ajax({
+            url:"/shudu/getDataList",
+            data:$.param(data1,true),
+            success: function(result){
+                if(result == "success"){
+                    alert("恭喜你完成了");
+                }
+                console.log(result);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
