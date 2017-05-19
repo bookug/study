@@ -1,13 +1,19 @@
 #lang racket
 
 1/2
+#i1.2
+44/14
 1+2i
 (sqrt 16)
 (sqrt -16)
 (>= 2 1)
 (number? "c'est une number")
 (number? 1)
-
+(log 2)
+(sin (/ pi 2))
+(remainder 999 57)
+(exp 1)
+(expt 2 3)
 
 "Hello, \"world"
 "λx:(μα.α→α).xx"
