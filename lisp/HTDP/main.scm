@@ -1,5 +1,7 @@
 #lang racket
 
+;; NOTICE: literature programming is suggested due to its readability
+
 (define (area-of-disk r)
   (* r r))
 
