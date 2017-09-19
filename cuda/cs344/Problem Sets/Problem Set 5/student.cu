@@ -136,7 +136,7 @@ void myHistogram(const unsigned int* const d_vals, //INPUT
 	//However, when numCoarse>=4, the answer is not right!
 
 	//the num of coarse bins
-	int numCoarse = 32;
+	int numCoarse = 2;
 	/*int numCoarse = 16;*/
 	//TODO; adjust the num of coarse bins, if 1, then store all bins in each block
 	int span = numBins / numCoarse;
