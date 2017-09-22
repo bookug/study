@@ -52,6 +52,8 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
   //calculate a 1D offset
 	int x = blockIdx.x * blockDim.x + threadIdx.x;
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
+	//ANALYSIS: thread is continuous in x-axis, but here we visit memory on y, separated on x
+	//this will be slow due to the separated memory visits
 	int z = x * numCols + y;
 	float channelSum = .299f * rgbaImage[z].x + .587f * rgbaImage[z].y + .114f * rgbaImage[z].z;
 	greyImage[z] = channelSum;
