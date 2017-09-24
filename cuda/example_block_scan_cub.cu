@@ -1,5 +1,5 @@
-// You don't have to modify the code below. The code has been pre-written for you.
-// This program is used for the following quiz
+//NOTICE: this is a fix of cub program in cs344
+//Lesson Code Snippets/Lesson 7 Code Snippets/cub
 
 /******************************************************************************
  * Copyright (c) 2011, Duane Merrill.  All rights reserved.
@@ -36,6 +36,18 @@
  *
  * nvcc example_block_scan_sum.cu -gencode=arch=compute_20,code=\"sm_20,compute_20\" -o example_block_scan_sum
  *
+ * EY : 20170125
+ * But here's what I did, on a GeForce GTX 980 Ti
+ * I wanted to include the cub library, which is in a separate folder (I downloaded, unzipped)
+ * but it's not symbolically linked from root (I REALLY don't want to mess with root directory right now).
+ * so I put the folder (straight downloaded from the internet) into a desired, arbitrary location;
+ * in this case, I put it in `../` so that it's `../cub-1.6.4/`
+ * Then I used the include flag -I
+ * in the following manner:
+ * nvcc -I../cub-1.6.4/ example_block_scan_cum.cu -o example_block_Scan_cum.exe
+ * 
+ * Also note that I was on a GeForce GTX 980 Ti and CUDA Toolkit 8.0 with latest drivers, and so 
+ * for my case, Compute or SM requirements was (very much) met
  ******************************************************************************/
 
 // Ensure printing of CUDA runtime errors to console (define before including cub.h)
@@ -71,28 +83,61 @@ __global__ void BlockPrefixSumKernel(
     int         *d_out,         // Tile of output
     clock_t     *d_elapsed)     // Elapsed cycle count of block scan
 {
+	// Added this:
+    // Specialize BlockLoad type for our thread block (uses warp-striped loads for coalescing, then transposes in shared memory to a blocked arrangement)
+    typedef BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, BLOCK_LOAD_WARP_TRANSPOSE> BlockLoadT;
+
+	// Added this:
+    // Specialize BlockStore type for our thread block (uses warp-striped loads for coalescing, then transposes in shared memory to a blocked arrangement)
+    typedef BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, BLOCK_STORE_WARP_TRANSPOSE> BlockStoreT;
+
+
     // Parameterize BlockScan type for our thread block
     typedef BlockScan<int, BLOCK_THREADS> BlockScanT;
 
     // Shared memory
-    __shared__ typename BlockScanT::SmemStorage smem_storage;
+//    __shared__ typename BlockScanT::SmemStorage smem_storage;
+
+    __shared__ union
+    {
+        typename BlockLoadT::TempStorage    load;
+        typename BlockStoreT::TempStorage   store;
+        typename BlockScanT::TempStorage    scan;
+    } temp_storage;
+
+
+
 
     // Per-thread tile data
     int data[ITEMS_PER_THREAD];
-    BlockLoadVectorized(d_in, data);
+//    BlockLoadVectorized(d_in, data);
+
+	// Load items into a blocked arrangement
+	BlockLoadT(temp_storage.load).Load(d_in, data);
+
+	// Add this:
+	// Barrier for smem reuse
+	__syncthreads();
 
     // Start cycle timer
     clock_t start = clock();
 
     // Compute exclusive prefix sum
     int aggregate;
-    BlockScanT::ExclusiveSum(smem_storage, data, data, aggregate);
+//    BlockScanT::ExclusiveSum(smem_storage, data, data, aggregate);
+	BlockScanT(temp_storage.scan).ExclusiveSum(data, data, aggregate);
 
     // Stop cycle timer
     clock_t stop = clock();
 
+	// Added this:
+	// Barrier for smem reuse
+	__syncthreads();
+
     // Store output
-    BlockStoreVectorized(d_out, data);
+//    BlockStoreVectorized(d_out, data);
+//	BlockStoreT(smem_storage).Store(d_out, data) ;
+	BlockStoreT(temp_storage.store).Store(d_out, data);
 
     // Store aggregate and elapsed clocks
     if (threadIdx.x == 0)
@@ -253,9 +298,10 @@ int main(int argc, char** argv)
     Test<128, 8>();
     Test<64, 16>();
     Test<32, 32>();
-    Test<16, 64>();
+//    Test<16, 64>();
 
 /****/
 
     return 0;
 }
+
