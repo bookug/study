@@ -1,3 +1,11 @@
+//ALGORITHM: A fast compact primitive that operates on a single block of data(01s).
+//1. sum up the 1s in each warp first
+//2. Exclusive-sum scan the per-warp results
+//3. Exclusive-sum scan each warp's sum
+//4. use the resulting address as a scatter address base for each warp, and do Exclusive-sum scan and scatter the data in each warp
+//
+//EXTEND: for many blocks, the idea can also be used by computing the number of 1s in each block first
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
@@ -24,6 +32,19 @@ __device__ unsigned int shared_reduce(unsigned int p, volatile unsigned int * s)
     // 31, you're doing it wrong)
     //
     // TODO: Fill in the rest of this function
+
+	//NOTICE: threads in a warp are synced automatically, all the control stream are the same
+	s[threadIdx.x] = p;
+	for(int i = 1; i < 32; i <<= 1)
+	{
+		int k = 32 - i;
+		if(threadIdx.x < k)
+		{
+			/*int tmp = s[threadIdx.x+i];*/
+			/*s[threadIdx.x] += tmp;*/
+			s[threadIdx.x] += s[threadIdx.x+i];
+		}
+	}
 
     return s[0];
 }
@@ -52,6 +73,7 @@ int main(int argc, char **argv)
     for(int i = 0; i < ARRAY_SIZE; i++) {
         // generate random float in [0, 1]
         h_in[i] = (float)random()/(float)RAND_MAX > 0.5f ? 1 : 0;
+		/*printf("in: %u ", h_in[i]);*/
         sum += h_in[i];
     }
 

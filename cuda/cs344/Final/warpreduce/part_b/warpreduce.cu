@@ -25,6 +25,8 @@ __device__ unsigned int warp_reduce(unsigned int p, volatile unsigned int * s) {
     //
     // TODO: Fill in the rest of this function
     //
+	int pred = __ballot(p);
+	return __popc(pred);
 }
 
 __global__ void reduce(unsigned int * d_out_warp, 

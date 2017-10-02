@@ -25,6 +25,9 @@
 */
 
 
+//BETTER+TODO: transfer histogram to reduce in a block, set one key to 1(other to 0) 
+//and compute the sum(atomic add once in the end)
+
 #include "utils.h"
 #include <stdio.h>
 

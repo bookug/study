@@ -1,3 +1,6 @@
+//FUNCTION: smooth an array(maybe iterate many times)
+//OPTIMIZATION: reduce global memory access
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
@@ -20,7 +23,21 @@ __global__ void smooth(float * v_new, const float * v) {
 __global__ void smooth_shared(float * v_new, const float * v) {
     extern __shared__ float s[];
     // TODO: Fill in the rest of this function
-    return v[0];
+    int myIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    int numThreads = blockDim.x * gridDim.x;  //perfectly divided
+	s[threadIdx.x + 1] = v[myIdx];
+	if(threadIdx.x == 0)
+	{
+		int myLeftIdx = (myIdx == 0) ? 0 : myIdx - 1;
+		s[0] = v[myLeftIdx];
+	}
+	else if(threadIdx.x == blockDim.x - 1)
+	{
+		int myRightIdx = (myIdx == (numThreads - 1)) ? numThreads - 1 : myIdx + 1;
+		s[blockDim.x + 1] = v[myRightIdx];
+	}
+	__syncthreads();
+    v_new[myIdx] = 0.25f * s[threadIdx.x] + 0.5f * s[threadIdx.x+1] + 0.25f * s[threadIdx.x+2];
 }
 
 int main(int argc, char **argv)

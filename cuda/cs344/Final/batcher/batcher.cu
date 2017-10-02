@@ -1,9 +1,16 @@
+//Bitonic sort is very useful in parallel sort application: O(lgn*lgn) time, O(n*lgn*lgn) work in total
+//https://www.cs.rutgers.edu/~venugopa/parallel_summer2012/bitonic_overview.html
+//http://blog.csdn.net/xbinworld/article/details/76408595
+//http://blog.csdn.net/sunmenggmail/article/details/42869235
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
 #include "compare.h"
 #include "gputimer.h"
 
+// Your job is to implemment a bitonic sort. A description of the bitonic sort
+// can be see at:
 // http://en.wikipedia.org/wiki/Bitonic_sort
 __global__ void batcherBitonicMergesort64(float * d_out, const float * d_in)
 {
@@ -18,6 +25,31 @@ __global__ void batcherBitonicMergesort64(float * d_out, const float * d_in)
         for (int substage = stage; substage >= 0; substage--)
         {
             // TODO
+			int step = 1 << substage;
+			int area = step << 1;
+			int span = 1 << (stage + 1);
+			/*int direct = tid >> (stage+1);*/
+			int direct = tid / span;
+			//positive direction start: 2, 4, 8, 16, 32, 64 
+			//for the first: 2, -2, 2, -2...
+			//for the second: 4, -4, 4, -4...
+			int pos = tid % area;
+			if(pos < step)
+			{
+				float minv = min(sdata[tid], sdata[tid+step]), maxv = max(sdata[tid], sdata[tid+step]);
+				//BETTER: this can be replaced by  tid & span
+				if(direct % 2 == 0)
+				{
+					sdata[tid] = minv;
+					sdata[tid+step] = maxv;
+				}
+				else
+				{
+					sdata[tid] = maxv;
+					sdata[tid+step] = minv;
+				}
+			}
+			__syncthreads();
         }
     }
 
