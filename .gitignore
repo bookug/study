@@ -1,3 +1,6 @@
+*.rpm
+hpc/Vagrantfile
+#
 # compiled file
 *.o
 *.i
