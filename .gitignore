@@ -7,6 +7,10 @@ hpc/Vagrantfile
 *.cmi
 *.cmo
 
+# executables
+*.out
+*.exe
+
 # Data and logs
 *.log*
 data
