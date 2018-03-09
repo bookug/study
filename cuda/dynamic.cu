@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
+#include <iostream> 
+
+using namespace std;
 
 __device__ int v = 0;
 
@@ -12,8 +15,11 @@ __global__ void child_k(void)
 	printf("v = %d\n", v);
 }
 
-__global__ void parent_k(void)
+/*__global__ void parent_k(int* data)*/
+__global__ void parent_k()
 {
+	/*int d_data = 3;*/
+	/*cudaMemcpy(data, &d_data, sizeof(int), cudaMemcpyDeviceToHost);*/
 	printf("Hello, World!\n");
 	v = 1;
 	child_k<<<1,1>>>();
@@ -44,6 +50,9 @@ int main(int argc, char **argv)
 			   devProps.sharedMemPerBlock, devProps.maxThreadsPerBlock, devProps.multiProcessorCount);
     }
 
+	/*int data;*/
+	/*parent_k<<<1,1>>>(&data);*/
+	/*cout<<"data: "<<data<<endl;*/
 	parent_k<<<1,1>>>();
         
     return 0;

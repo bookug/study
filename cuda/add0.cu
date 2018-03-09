@@ -96,7 +96,13 @@ cudaError_t addWithCuda(int *c, const int *a, const int *b, size_t size)
     }
 
     // Launch a kernel on the GPU with one thread for each element.
-    addKernel<<<1, size>>>(dev_c, dev_a, dev_b);
+	for(int i = 0; i < 100000000; ++i)
+	{
+		addKernel<<<1, size>>>(dev_c, dev_a, dev_b);
+		cudaDeviceSynchronize();
+	}
+	printf("loops finish normally\n");
+	/*addKernel<<<1, size>>>(dev_c, dev_a, dev_b);*/
 
     // cudaThreadSynchronize waits for the kernel to finish, and returns
     // any errors encountered during the launch.

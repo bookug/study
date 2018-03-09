@@ -9,6 +9,24 @@
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+#include <cassert>
+#include <cmath>
+#include <iostream>
+
+using namespace std;
+
+#define checkCudaErrors(val) check( (val), #val, __FILE__, __LINE__)
+
+template<typename T>
+void check(T err, const char* const func, const char* const file, const int line) {
+  if (err != cudaSuccess) {
+    std::cerr << "CUDA error at: " << file << ":" << line << std::endl;
+    std::cerr << cudaGetErrorString(err) << " " << func << std::endl;
+    exit(1);
+  }
+}
 
 #include <stdio.h>
 
@@ -40,8 +58,35 @@ __global__ void checkWarp_kernel()
 	}
 }
 
+__global__ void
+memory_kernel(int** d_m)
+{
+	/*d_m[0] = new int[2];*/
+	d_m[0][0] = 1;
+	printf("gpu pointer: %lu\n", d_m[0]);
+}
+
 int main()
 {
+	int **d_m;
+	cudaMalloc(&d_m, sizeof(int*));
+  checkCudaErrors(cudaGetLastError());
+  int** h_m = new int*[1];
+	cudaMalloc(&h_m[0], sizeof(int));
+  checkCudaErrors(cudaGetLastError());
+	cudaMemcpy(d_m, h_m, sizeof(int*), cudaMemcpyHostToDevice);
+  checkCudaErrors(cudaGetLastError());
+	printf("check pointer: %lu\n", h_m[0]);
+	memory_kernel<<<1,1>>>(d_m);
+  cudaDeviceSynchronize(); 
+  checkCudaErrors(cudaGetLastError());
+	cudaFree(h_m[0]);
+  checkCudaErrors(cudaGetLastError());
+	cudaFree(d_m);
+  checkCudaErrors(cudaGetLastError());
+	cudaFree(d_m);
+  checkCudaErrors(cudaGetLastError());
+
 	//check the output: 32 threads in a warp add 1 to the same variable
 	checkWarp_kernel<<<1, 32>>>();
 	
