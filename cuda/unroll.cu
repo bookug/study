@@ -1,4 +1,6 @@
 //REFERENCE: http://blog.csdn.net/Rong_Toa/article/details/78669140
+//unroll the loop is a kind of optimization for cuda, because it reduces the cost
+//of loop variable judgement and update
 
 /*#include "../common/common.h"*/
 #include <cuda_runtime.h>
