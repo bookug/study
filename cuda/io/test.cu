@@ -1,4 +1,20 @@
 #include <stdio.h>
+#include <cuda.h> 
+#include <cuda_runtime.h> 
+#include <cuda_runtime_api.h> 
+#include <cassert>
+
+#define checkCudaErrors(val) check( (val), #val, __FILE__, __LINE__)
+
+template<typename T>
+void check(T err, const char* const func, const char* const file, const int line) {
+  if (err != cudaSuccess) {
+    printf("CUDA error at: %s:%d\n", file, line);
+    printf("%s %s\n", cudaGetErrorString(err), func);
+    exit(1);
+  }
+}
+
 
 //WARN: this setting will cause the kernel function unable to work
 //As a result, we should set block num < 65536
@@ -28,9 +44,13 @@ int main(int argc, const char* argv[])
 	printf("io buffer size: %u\n", io_buffer_size);   //1M by default
 
 	hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
+	//Below checks if the kernel launches successfully
+	checkCudaErrors(cudaGetLastError());
 
 	//force the printf()s to flush
 	cudaDeviceSynchronize();
+	//Below checks if the kernel runs and ends successfully
+	checkCudaErrors(cudaGetLastError());
 
 	printf("That's all!\n");
 
