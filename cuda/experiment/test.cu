@@ -18,10 +18,10 @@ void check(T err, const char* const func, const char* const file, const int line
 
 //WARN: this setting will cause the kernel function unable to work
 //As a result, we should set block num < 65536
-/*#define NUM_BLOCKS 65536*/
-#define NUM_BLOCKS 400
-/*#define BLOCK_WIDTH 1*/
-#define BLOCK_WIDTH 1024
+#define NUM_BLOCKS 65536
+/*#define NUM_BLOCKS 400*/
+#define BLOCK_WIDTH 1
+/*#define BLOCK_WIDTH 1024*/
 
 __global__ void hello()
 {
