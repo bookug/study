@@ -15,7 +15,13 @@ void check(T err, const char* const func, const char* const file, const int line
   }
 }
 
+//Dynamic memory allocation in the kernel function of GPU
+//https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#dynamic-global-memory-allocation-and-operations
+//very slow, dozens of times slower than pre-assigned memory
 
+//NOTICE: the limit of block number is given by compute/arch capablity
+//nvcc -arch=sm_35 will allow block num >= 65536
+//https://en.wikipedia.org/wiki/CUDA
 //WARN: this setting will cause the kernel function unable to work
 //As a result, we should set block num < 65536
 #define NUM_BLOCKS 65536
