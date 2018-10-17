@@ -48,10 +48,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/zengli/GITHUB/study/cmake
+CMAKE_SOURCE_DIR = /home/zengli/GITHUB/study/cmake/example
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/zengli/GITHUB/study/cmake
+CMAKE_BINARY_DIR = /home/zengli/GITHUB/study/cmake/example/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/CMakeFiles /home/zengli/GITHUB/study/cmake/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/example/build/CMakeFiles /home/zengli/GITHUB/study/cmake/example/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/example/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,32 +111,45 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named main.exe
+# Target rules for targets named ../bin/run.exe
 
 # Build rule for target.
-main.exe: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 main.exe
-.PHONY : main.exe
+../bin/run.exe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ../bin/run.exe
+.PHONY : ../bin/run.exe
 
 # fast build rule for target.
-main.exe/fast:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/build
-.PHONY : main.exe/fast
+../bin/run.exe/fast:
+	$(MAKE) -f CMakeFiles/../bin/run.exe.dir/build.make CMakeFiles/../bin/run.exe.dir/build
+.PHONY : ../bin/run.exe/fast
+
+#=============================================================================
+# Target rules for targets named list
+
+# Build rule for target.
+list: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 list
+.PHONY : list
+
+# fast build rule for target.
+list/fast:
+	$(MAKE) -f inc/CMakeFiles/list.dir/build.make inc/CMakeFiles/list.dir/build
+.PHONY : list/fast
 
 # target to build an object file
-main.o:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/main.o
-.PHONY : main.o
+example_correct.o:
+	$(MAKE) -f CMakeFiles/../bin/run.exe.dir/build.make CMakeFiles/../bin/run.exe.dir/example_correct.o
+.PHONY : example_correct.o
 
 # target to preprocess a source file
-main.i:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/main.i
-.PHONY : main.i
+example_correct.i:
+	$(MAKE) -f CMakeFiles/../bin/run.exe.dir/build.make CMakeFiles/../bin/run.exe.dir/example_correct.i
+.PHONY : example_correct.i
 
 # target to generate assembly for a file
-main.s:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/main.s
-.PHONY : main.s
+example_correct.s:
+	$(MAKE) -f CMakeFiles/../bin/run.exe.dir/build.make CMakeFiles/../bin/run.exe.dir/example_correct.s
+.PHONY : example_correct.s
 
 # Help Target
 help:
@@ -146,10 +159,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... main.exe"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... ../bin/run.exe"
+	@echo "... list"
+	@echo "... example_correct.o"
+	@echo "... example_correct.i"
+	@echo "... example_correct.s"
 .PHONY : help
 
 

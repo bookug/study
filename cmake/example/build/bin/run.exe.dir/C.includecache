@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/zengli/GITHUB/study/cmake/example/example_correct.c
+stdio.h
+-
+math.h
+-
+stdlib.h
+-
+limits.h
+-
+inc/list.h
+/home/zengli/GITHUB/study/cmake/example/inc/list.h
+
+/home/zengli/GITHUB/study/cmake/example/inc/list.h
+stdio.h
+-
+math.h
+-
+stdlib.h
+-
+

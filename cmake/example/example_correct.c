@@ -13,7 +13,7 @@
 #include <stdlib.h> 
 #include <limits.h> 
 //Another choice is to use 'inc/list.h' here
-#include "list.h"
+#include "inc/list.h"
 
 //A safe way to release memory
 #define xfree(p) free(p);p=NULL;

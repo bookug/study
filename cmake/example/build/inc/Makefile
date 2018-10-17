@@ -48,10 +48,10 @@ RM = /usr/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/zengli/GITHUB/study/cmake
+CMAKE_SOURCE_DIR = /home/zengli/GITHUB/study/cmake/example
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/zengli/GITHUB/study/cmake
+CMAKE_BINARY_DIR = /home/zengli/GITHUB/study/cmake/example/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/CMakeFiles /home/zengli/GITHUB/study/cmake/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/CMakeFiles 0
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/example/build/CMakeFiles /home/zengli/GITHUB/study/cmake/example/build/inc/CMakeFiles/progress.marks
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f CMakeFiles/Makefile2 inc/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/zengli/GITHUB/study/cmake/example/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f CMakeFiles/Makefile2 inc/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,46 +97,48 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f CMakeFiles/Makefile2 inc/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f CMakeFiles/Makefile2 inc/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named main.exe
+# Convenience name for target.
+inc/CMakeFiles/list.dir/rule:
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f CMakeFiles/Makefile2 inc/CMakeFiles/list.dir/rule
+.PHONY : inc/CMakeFiles/list.dir/rule
 
-# Build rule for target.
-main.exe: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 main.exe
-.PHONY : main.exe
+# Convenience name for target.
+list: inc/CMakeFiles/list.dir/rule
+
+.PHONY : list
 
 # fast build rule for target.
-main.exe/fast:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/build
-.PHONY : main.exe/fast
+list/fast:
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f inc/CMakeFiles/list.dir/build.make inc/CMakeFiles/list.dir/build
+.PHONY : list/fast
 
 # target to build an object file
-main.o:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/main.o
-.PHONY : main.o
+list.o:
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f inc/CMakeFiles/list.dir/build.make inc/CMakeFiles/list.dir/list.o
+.PHONY : list.o
 
 # target to preprocess a source file
-main.i:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/main.i
-.PHONY : main.i
+list.i:
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f inc/CMakeFiles/list.dir/build.make inc/CMakeFiles/list.dir/list.i
+.PHONY : list.i
 
 # target to generate assembly for a file
-main.s:
-	$(MAKE) -f CMakeFiles/main.exe.dir/build.make CMakeFiles/main.exe.dir/main.s
-.PHONY : main.s
+list.s:
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(MAKE) -f inc/CMakeFiles/list.dir/build.make inc/CMakeFiles/list.dir/list.s
+.PHONY : list.s
 
 # Help Target
 help:
@@ -146,10 +148,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... main.exe"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... list"
+	@echo "... list.o"
+	@echo "... list.i"
+	@echo "... list.s"
 .PHONY : help
 
 
@@ -161,6 +163,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/zengli/GITHUB/study/cmake/example/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

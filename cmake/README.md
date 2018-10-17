@@ -8,3 +8,13 @@ autoconf: configure scripts
 
 https://www.cnblogs.com/flyfish10000/articles/1986054.html
 
+---
+
+清空cmake的输出
+
+https://blog.csdn.net/coldplayplay/article/details/78508883?utm_source=blogxgwz0
+
+CMakeLists.txt 文件中不区分大小写
+
+https://blog.csdn.net/wfei101/article/details/77150234/
+
