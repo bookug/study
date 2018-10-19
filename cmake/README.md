@@ -16,5 +16,7 @@ https://blog.csdn.net/coldplayplay/article/details/78508883?utm_source=blogxgwz0
 
 CMakeLists.txt 文件中不区分大小写
 
+CMake 支持大写、小写或者大小写混合的命令语句
+
 https://blog.csdn.net/wfei101/article/details/77150234/
 
