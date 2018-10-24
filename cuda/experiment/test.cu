@@ -1,3 +1,12 @@
+/*=============================================================================
+# Filename: test.cu
+# Author: bookug 
+# Mail: bookug@qq.com
+# Last Modified: 2018-10-24 19:56
+# Description: 
+This program tests I/O and thread capacity on GPU(using Titan X Pascal)
+=============================================================================*/
+
 #include <stdio.h>
 #include <cuda.h> 
 #include <cuda_runtime.h> 
@@ -14,10 +23,6 @@ void check(T err, const char* const func, const char* const file, const int line
     exit(1);
   }
 }
-
-//Dynamic memory allocation in the kernel function of GPU
-//https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#dynamic-global-memory-allocation-and-operations
-//very slow, dozens of times slower than pre-assigned memory
 
 //NOTICE: the limit of block number is given by compute/arch capablity
 //nvcc -arch=sm_35 will allow block num >= 65536
@@ -38,7 +43,7 @@ __global__ void hello()
 
 int main(int argc, const char* argv[])
 {
-	//NOTICE: this API is out-ofo-date
+	//NOTICE: this API is out-of-date
 	/*cudaPrintfInit(100*NUM_BLOCKS*BLOCK_WIDTH);*/
 	size_t io_buffer_size = 0;
 	cudaDeviceGetLimit(&io_buffer_size, cudaLimitPrintfFifoSize);

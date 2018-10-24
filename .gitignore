@@ -6,6 +6,7 @@ hpc/Vagrantfile
 *.i
 *.cmi
 *.cmo
+*.asm
 
 # executables
 *.out
