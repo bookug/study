@@ -4,7 +4,26 @@
 # Mail: bookug@qq.com
 # Last Modified: 2018-10-24 01:07
 # Description: 
-verify the efficiency of dynamic memory allocation scheduling
+warp operations are very fast and important because threads in a warp are naturally synchronized
+束表决函数：简单的理解就是在一个warp内进行表决
+__all(int predicate)：指的是predicate与0进行比较，如果当前线程所在的Wrap所有线程对应predicate不为0，则返回1。
+__any(int predicate)：指的是predicate与0进行比较，如果当前线程所在的Wrap有一个线程对应的predicate值不为0，则返回1。
+__ballot(int predicate)：指的是当前线程所在的Wrap中第N个线程对应的predicate值不为0，则将整数0的第N位进行置位。
+
+//__shfl __shfl_up  ...
+//https://blog.csdn.net/bruce_0712/article/details/64926471
+//NOTICE: in __shfl_up or other functions, the thread not in range will receive itself!!!
+
+置位可以用或操作符“|”实现：y = x | (1 << n)  对x的第n位进行置位
+清楚可以用与操作符”&“实现：y = x & (~(1 << n))
+取反可以用异或操作符”^“实现： y = x ^ (1 << n)
+Bit提取操作： bit = (x & (1 << n)) >> n
+
+如何判断一个数是否为2的整数次幂   x & (x-1) == 0
+如何提取一个数的最低位的1     x & (-x)
+已知一个数是2的幂，如何提取幂次    可以使用log，有更好的方法么？
+C语言的log函数耗时钟周期多，且取的是自然对数，要取以2为底的对数还得转化。(or use log2 function)
+一种比较好的方式是右移位运算，做二分查找，最多只需五次
 =============================================================================*/
 
 #include <stdio.h>
@@ -20,11 +39,8 @@ using namespace std;
 
 #define checkCudaErrors(val) check( (val), #val, __FILE__, __LINE__)
 #define ERROR_EXIT -1
-/*#define NUM_BLOCKS 1*/
-#define NUM_BLOCKS 1000
-#define BLOCK_WIDTH 1024
-#define BASE 1000
-#define LIMIT 900
+#define NUM_BLOCKS 1
+#define BLOCK_WIDTH 32
 
 template<typename T>
 void check(T err, const char* const func, const char* const file, const int line) {
@@ -48,25 +64,6 @@ void check(T err, const char* const func, const char* const file, const int line
             fprintf(stderr, "CURAND error %d at file %s line %d.\n", (int)(err), __FILE__, __LINE__);\
         exit(ERROR_EXIT);\
         }}while(0)
-
-extern "C"
-void randomGenerator(float *dataHost, int number, unsigned long long seed)
-{   
-    //SEE: https://blog.csdn.net/warren912/article/details/19962823
-    float *dataDev;
-    CHECK_CUDA( cudaMalloc( (void **) &dataDev, number * sizeof(float)  )  );
- 
-    curandGenerator_t gen;
-    CHECK_CURAND( curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT)  );
-    CHECK_CURAND( curandSetPseudoRandomGeneratorSeed(gen, seed)  );
-    CHECK_CURAND( curandGenerateUniform(gen, dataDev, number)  );
-    CHECK_CURAND( curandDestroyGenerator(gen)  );
- 
-    CHECK_CUDA( cudaMemcpy(dataHost, dataDev, number * sizeof(float), cudaMemcpyDeviceToHost)  );
-    CHECK_CUDA( cudaFree(dataDev)  );
- 
-    return;
-}
 
 void initGPU(int dev)
 {
@@ -128,67 +125,72 @@ void initGPU(int dev)
 	//the word size of GPU is 32 bits
 }
 
-
-//Dynamic memory allocation in the kernel function of GPU
-//https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#dynamic-global-memory-allocation-and-operations
-//very slow, dozens of times slower than pre-assigned memory
-
-__global__ void apply1_kernel(float* d_data)
+__global__ void warp_kernel()
 {
-    unsigned size = BASE * d_data[threadIdx.x];
-    unsigned* ptr = (unsigned*)malloc(size * sizeof(unsigned));
-    /*printf("check: thread %d apply %u\n", threadIdx.x, size);*/
-}
-
-__global__ void apply2_kernel(float* d_data)
-{
-    //BETTER: the block size and shared memory usage can be adjusted according to the architecture of GPU
-
-    /*__shared__ int vote;*/
-    /*vote = threadIdx.x;*/
-    /*__syncthreads();*/
-    /*printf("thread %d control the warp %d", vote, threadIdx.x >> 5);*/
-
-    //NOTICE: here we use warp reduce and apply for heap memory as a warp/block
-    //if warp_reduce() is extracted to be a device function, then volatile is needed
-    //https://blog.csdn.net/q583956932/article/details/81608798
-    __shared__ unsigned size[1024];
-    size[threadIdx.x] = BASE * d_data[threadIdx.x];
-    //here each warp is synchronized
-    /*int warp = threadIdx.x >> 5;*/
+    __shared__ int vote;
+    //this is also called a lane
     int idx = threadIdx.x & 0x1f;
-    for(int i = 1; i < 32; i <<= 1)
-    {
-        int k = 32 - i;
-        if(idx < k)
-        {
-            size[threadIdx.x] += size[threadIdx.x+i];
-        }
-    }
+    //USAGE: the function of vote control can be easily implemented
+    vote = idx;
+    __syncthreads();
+    //NOTICE: bit operations are suggested instead of / and %, which are really costly
+    int warp = threadIdx.x >> 5;
     if(idx == 0)
     {
-        unsigned* ptr = (unsigned*)malloc(size[threadIdx.x] * sizeof(unsigned));
-        /*printf("check: warp %d apply %u\n", warp, size[threadIdx.x]);*/
+        printf("thread %d control the warp %d\n", vote, warp);
     }
-    //TODO: if pointers are needed, then we need to do a prefix-scan on warp, and the pointer of each thread is ptr+offset
-    //or using block(__syncthreads())?  combine apply2 and apply3 because it will be more easy to load balance
-}
 
-__global__ void apply3_kernel(float* d_data)
-{
-    unsigned size = BASE * d_data[threadIdx.x];
-    if(size > LIMIT)
+    //NOTICE: the return value of __ballot, __any, __all
+    int flag = 0;
+    if(idx < 15)
     {
-        //BETTER: utilizing the original array space, and use the final 3*4 bytes to place flag and pointer of linked list
-        unsigned* ptr = (unsigned*)malloc(size * sizeof(unsigned));
+        flag = 3;
     }
-}
+    int check = __shfl_up(flag, 4);
+    //NOTICE: it is not safe for thread 0 because it will receive 3 as result, not the former 4-th one
+    //because 0-4 is out of bound, so it will use the value of itself instead
+    if(idx == 0)
+    {
+        printf("check: %d\n", check);
+    }
+    int t1 = __any(flag);
+    int t2 = __all(flag);
+    unsigned t3 = __ballot(flag);
+    //WARN: thsi may cause problem, the return value of __ballot may be 1<<31, i.e. 2147483648 which exceeds the maximum integer value
+    /*int t3 = __ballot(flag);*/
 
-void apply3(float* d_data)
-{
-    unsigned* d_result = NULL;
-    CHECK_CUDA( cudaMalloc( (void **) &d_result, LIMIT * BLOCK_WIDTH * NUM_BLOCKS * sizeof(unsigned)  )  );
-    apply3_kernel<<<NUM_BLOCKS, BLOCK_WIDTH>>>(d_data);
+    if(idx == 0)
+    {
+        printf("check: %d %d %u\n",t1, t2, t3);
+        //logarithmic function may be not accurate and can cause problem
+        int x = log2((double)16777216);  //this is wrong, it should be 24, but it outputs 23
+        /*int x = log2((double)1);  // this is right, 0*/
+        printf("x: %d\n", x);
+    }
+
+    //use shfl to do warp prefix-scan
+    int val = 0;
+    if(idx == 0 || idx == 7 || (idx>1 &&idx<6))
+    {
+        val = 1;
+    }
+    unsigned size = 8;
+    //no need to use 32 here, we can stop when we count what we need
+    for(unsigned stride = 1; stride <= size; stride<<=1)
+    {
+        //WARN: this logic is wrong because the 0-th thread will not send its value to the 1-th thread
+        /*if(idx >= stride)*/
+        /*{*/
+            /*int tmp = __shfl_up(val, stride, 32);*/
+            /*val += tmp;*/
+        /*}*/
+        int tmp = __shfl_up(val, stride);
+        //NOTICE: for prefix we must do this judgement, but no need for reduce-sum
+        if(idx >= stride)
+        {
+            val += tmp;
+        }
+    }
 }
 
 int main(int argc, const char* argv[])
@@ -200,42 +202,23 @@ int main(int argc, const char* argv[])
 	}
     initGPU(dev);
 
-    //BETTER: using srand()
-    //ULL is a suffix to indicate the type(in case of overflow)
-    unsigned long long seed = 1234ULL;
-    float* h_data = (float*)malloc(BLOCK_WIDTH * sizeof(float));
-    randomGenerator(h_data, BLOCK_WIDTH, seed);
-    float* d_data = NULL;
-    CHECK_CUDA( cudaMalloc( (void **) &d_data, BLOCK_WIDTH * sizeof(float)  )  );
-    CHECK_CUDA( cudaMemcpy(d_data, h_data, BLOCK_WIDTH * sizeof(float), cudaMemcpyHostToDevice)  );
-    xfree(h_data);
+    //this should be -2,  x的补码是-x，等于反码加1，所以负数在计算机中可以直接用补码表示，因此得到统一
+    cout<<~1<<endl;
+    unsigned tmp = false;
+    cout<<tmp<<endl;
+    tmp = true;
+    cout<<tmp<<endl;
 
     long t1 = Util::get_cur_time();
 
-    //RESULT: apply1 uses 45s, apply2 uses 30ms, apply3 uses 1s (512), 16ms(1000), 88ms(900)
-    /*apply1_kernel<<<NUM_BLOCKS, BLOCK_WIDTH>>>(d_data);*/
-    /*apply2_kernel<<<NUM_BLOCKS, BLOCK_WIDTH>>>(d_data);*/
-    apply3(d_data);
-	//Below checks if the kernel launches successfully
-	checkCudaErrors(cudaGetLastError());
-
+    warp_kernel<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
 	//force the printf()s to flush
 	cudaDeviceSynchronize();
 	//Below checks if the kernel runs and ends successfully
 	checkCudaErrors(cudaGetLastError());
 
     long t2 = Util::get_cur_time();
-    printf("apply used %lu ms\n", t2 - t1);
-
-    //NOTICE: if we do not release the memory dynamically allocated in kernel functions, they will be resident on GPU mmeory and can be used by later kernel functions(cudaDeviceSynchronize does not collect the memory)
-    //however, if the whole program exits, these memory will also be recycled by GPU
-    //The reason is that when a program ends on CPU, operating system will destroy its Virtual Memory Mapping to recycle all memory
-    //(this operation will also release the memory on GPU which are occupied by the CPU program)
-    getchar();
-    //stop here to see memory cost using nvidia-smi
-
-    CHECK_CUDA(cudaFree(d_data));
-    d_data = NULL;
+    printf("warp_kernel used %lu ms\n", t2 - t1);
 
 	printf("That's all!\n");
 

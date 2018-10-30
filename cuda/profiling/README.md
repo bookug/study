@@ -46,3 +46,14 @@ http://www.cnblogs.com/shrimp-can/p/5567518.html
 
 https://blog.csdn.net/k346k346/article/details/50377714
 
+---
+
+occupancy
+
+http://blog.sina.com.cn/s/blog_c25b76e20101jywb.html
+
+http://blog.sina.com.cn/s/blog_c25b76e20101jywj.html
+
+
+https://blog.csdn.net/k346k346/article/details/50377714
+

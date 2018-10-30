@@ -29,7 +29,11 @@ void check(T err, const char* const func, const char* const file, const int line
 //https://en.wikipedia.org/wiki/CUDA
 //WARN: this setting will cause the kernel function unable to work
 //As a result, we should set block num < 65536
-#define NUM_BLOCKS 65536
+/*#define NUM_BLOCKS 65536*/
+
+//this is ok to start
+#define NUM_BLOCKS 1000000000
+
 /*#define NUM_BLOCKS 400*/
 #define BLOCK_WIDTH 1
 /*#define BLOCK_WIDTH 1024*/
@@ -54,7 +58,8 @@ int main(int argc, const char* argv[])
 	cudaDeviceGetLimit(&io_buffer_size, cudaLimitPrintfFifoSize);
 	printf("io buffer size: %u\n", io_buffer_size);   //1M by default
 
-	hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
+    /*hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();*/
+    hello<<<1000000000L, 1024>>>();
 	//Below checks if the kernel launches successfully
 	checkCudaErrors(cudaGetLastError());
 
