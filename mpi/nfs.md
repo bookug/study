@@ -53,3 +53,11 @@ https://blog.csdn.net/starlh35/article/details/79064486
 https://blog.csdn.net/wmj2004/article/details/53216011
 
 
+---
+
+主动分享的这台服务器可以读写这个分享目录，其他服务器只能读，不能写
+
+软链接也可以分享，即便指向的位置不在分享目录中，其他服务器依然可以正常读取
+
+
+

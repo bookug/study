@@ -23,3 +23,9 @@ git pages 可以使用jekyll 从markdown直接生成html网页，这个渲染过
 
 或者也可以考虑用hexo在本地从markdown生成网页，这在一些复杂的网站中比较常用，jekyll支持的github pages则更适合一些简单的博客网站。
 
+---
+
+~~ 删除线 ~~
+
+---
+
