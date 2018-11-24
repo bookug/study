@@ -41,3 +41,6 @@ vgcore.*
 *.a
 *.so
 
+*.png
+*.jpg
+

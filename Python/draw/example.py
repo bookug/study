@@ -1,8 +1,14 @@
 # for latex drawing, tikz and asymptote may be considered
 
 import matplotlib
+# must be set before using pyplot
+matplotlib.use('Agg')
+# this problem is due to the difference between backends of Linux and Windows
+# https://blog.csdn.net/qq_22194315/article/details/77984423
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 # Data for plotting
 t = np.arange(0.0, 2.0, 0.01)
