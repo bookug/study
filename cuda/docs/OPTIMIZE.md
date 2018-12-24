@@ -21,3 +21,9 @@ If there were code to be looked at, it would probably make for a more fruitful d
 
 (4) Some math functions are fairly expensive in terms of register use, e.g. pow(), and should not be used gratuitously where simpler functions would suffice. Using sinpi(), cospi(), sincospi() instead of sin(), cos(), sincos(), where possible, can often reduce register pressure. 
 
+---
+
+the advantage of fusing multiple kernels is to reduce the cost of read/write global memory
+
+the advantage of dividing multiple kernels is to reduce th usage of registers and then avoid register spilling problem
+
