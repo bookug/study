@@ -19,3 +19,8 @@ memory.exe: memory.cu Util.h Util.cpp
 warp.exe: warp.cu Util.h Util.cpp
 	$(NVCC) $(EXEFLAG) -o warp.exe warp.cu Util.cpp
 
+.PHONY: clean
+
+clean:
+	rm -f *.exe
+
