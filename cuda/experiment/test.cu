@@ -51,9 +51,13 @@ __global__ void hello(unsigned* d_data)
 
     //HACK: we can hack the global load/store transaction number/size here
     //Or we can explore the mechanism of register allocation.
-    unsigned ele = d_data[threadIdx.x];
-    ele = 2 * ele;
-    d_data[threadIdx.x] = ele;
+    /*unsigned ele = d_data[threadIdx.x];*/
+    /*ele = 2 * ele;*/
+    /*d_data[threadIdx.x] = ele;*/
+
+    //To hack the gst write transactions(whether write cache is needed)
+    d_data[threadIdx.x] = 0;
+    d_data[threadIdx.x] = 1;
 }
 
 int main(int argc, const char* argv[])
