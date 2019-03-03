@@ -41,8 +41,11 @@ void check(T err, const char* const func, const char* const file, const int line
 #define BLOCK_WIDTH 1
 /*#define BLOCK_WIDTH 1024*/
 
+//Initially, this function uses 328B constant memory
+//If we add more constant variables, this size will grow
 __global__ void hello(unsigned* d_data)
 {
+    __shared__ unsigned duck;
 	/*__shared__ int array[128];*/
 
 	/*printf("Hello, world! I am a thread in block %d\n", blockIdx.x);*/
@@ -55,9 +58,35 @@ __global__ void hello(unsigned* d_data)
     /*ele = 2 * ele;*/
     /*d_data[threadIdx.x] = ele;*/
 
+    //shared variable does not occupy registers and it does not occupy gld/gst transactions
+    duck = 0;
+
     //To hack the gst write transactions(whether write cache is needed)
-    d_data[threadIdx.x] = 0;
-    d_data[threadIdx.x] = 1;
+    //when only use this instruction in the context, only 6 registers occupied, the same as none instructions
+    /*d_data[threadIdx.x] = 0;*/
+    //below will add 2 registers for usage, and the gst transactions number+4 (32 bytes once)
+    /*d_data[threadIdx.x] = 1;*/
+
+    //TODO: test multiple warps write continuously
+    int idx = threadIdx.x % 32;
+    int group = threadIdx.x / 32;
+    //below uses 32 gst transactions
+    //EXPLAIN: though the addresses written by different warps are continuous, these warps may be not run in the same time(although with sync function here)
+    __syncthreads();
+    if(idx == 0)
+    {
+        //WARN: we should not use sync function here(in judgement) because it will cause deadlock
+        d_data[group] = 0;
+    }
+    //below uses 4 gst transactions
+    /*if(group == 0)*/
+    /*{*/
+        /*d_data[idx] = 0;*/
+    /*}*/
+
+    //test if adoptingg 128B mechanism: -Xptxas -dlcm=ca  (close, -dlcm=cg)
+    //If with no specification, below needs 8 gld transactions
+    /*unsigned ele = d_data[threadIdx.x];   //this single instruction  adds 4 regsiters usage. In real running, registers usage may be more or less*/
 }
 
 int main(int argc, const char* argv[])
@@ -77,7 +106,8 @@ int main(int argc, const char* argv[])
     cudaMalloc(&d_data, sizeof(unsigned)*32);
     /*hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();*/
     /*hello<<<1000000000L, 1024>>>();*/
-    hello<<<1, 32>>>(d_data);
+    /*hello<<<1, 32>>>(d_data);*/
+    hello<<<1, 1024>>>(d_data);
 	//Below checks if the kernel launches successfully
 	checkCudaErrors(cudaGetLastError());
 	//force the printf()s to flush
