@@ -75,7 +75,7 @@ __global__ void hello(unsigned* d_data)
     //test multiple warps write continuously
     int idx = threadIdx.x % 32;
     int group = threadIdx.x / 32;
-    //below uses 32 gst transactions or maybe 1 transaction
+    //below uses 32 gst transactions (this should be tested using block size 1024)
     //EXPLAIN: though the addresses written by different warps are continuous, these warps may be not run in the same time(although with sync function here)
     /*__syncthreads();*/
     /*if(idx == 0)*/
@@ -142,6 +142,10 @@ __global__ void hello(unsigned* d_data)
     //test overlapping
     //below requires 4 transactions, which seems reads of each 4 threads are combined into a small group and small groups may be not executed at the same time
     /*ele = d_data[idx%4];*/
+
+    //test writing to the same address
+    //below uses 1 gst transaction
+    d_data[0] = 0;
 
     //TODO:test relations among gld transactions, throughput and efficiency
     //if one 128B read is better then 4 separated 32B reads?
