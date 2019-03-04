@@ -7,6 +7,9 @@
 This program tests I/O and thread capacity on GPU(using Titan X Pascal)
 =============================================================================*/
 
+//WARN: no shared memory configs for Maxwell/Pasacal, no split of L1/shared mem
+//https://stackoverflow.com/questions/52305331/how-to-call-cudadevicesetsharedmemconfig-and-cudadevicesetcacheconfig
+
 #include <stdio.h>
 #include <cuda.h> 
 #include <cuda_runtime.h> 
@@ -57,6 +60,8 @@ __global__ void hello(unsigned* d_data)
     /*unsigned ele = d_data[threadIdx.x];*/
     /*ele = 2 * ele;*/
     /*d_data[threadIdx.x] = ele;*/
+    //NOTICE: below requires 4 gst transactions
+    /*d_data[threadIdx.x] = 0;*/
 
     //shared variable does not occupy registers and it does not occupy gld/gst transactions
     duck = 0;
@@ -67,18 +72,18 @@ __global__ void hello(unsigned* d_data)
     //below will add 2 registers for usage, and the gst transactions number+4 (32 bytes once)
     /*d_data[threadIdx.x] = 1;*/
 
-    //TODO: test multiple warps write continuously
+    //test multiple warps write continuously
     int idx = threadIdx.x % 32;
     int group = threadIdx.x / 32;
-    //below uses 32 gst transactions
+    //below uses 32 gst transactions or maybe 1 transaction
     //EXPLAIN: though the addresses written by different warps are continuous, these warps may be not run in the same time(although with sync function here)
-    __syncthreads();
-    if(idx == 0)
-    {
-        //WARN: we should not use sync function here(in judgement) because it will cause deadlock
-        d_data[group] = 0;
-    }
-    //below uses 4 gst transactions
+    /*__syncthreads();*/
+    /*if(idx == 0)*/
+    /*{*/
+        /*//WARN: we should not use sync function here(in judgement) because it will cause deadlock*/
+        /*d_data[group] = 0;*/
+    /*}*/
+    //below uses 4 gst transactions, but they are faster than 4 separated gst transactions
     /*if(group == 0)*/
     /*{*/
         /*d_data[idx] = 0;*/
@@ -87,6 +92,59 @@ __global__ void hello(unsigned* d_data)
     //test if adoptingg 128B mechanism: -Xptxas -dlcm=ca  (close, -dlcm=cg)
     //If with no specification, below needs 8 gld transactions
     /*unsigned ele = d_data[threadIdx.x];   //this single instruction  adds 4 regsiters usage. In real running, registers usage may be more or less*/
+
+    //below test the speed of 128B transactions and 32B transactions
+    //nvcc -arch=sm_35 -lcudadevrt -rdc=true -G --ptxas-options=-v -lcurand -Xptxas -dlcm=ca test.cu -o test.exe
+    //On titan xp, though L1 cache is used, still 8 gld transactions for a warp
+    //nvprof -m gld_transactions -m gst_transactions ./test.exe ans.txt 3>& prof.log
+    //On titan xp, though L1 cache is forbidden, still 8 gld transactions for a warp
+    unsigned ele;
+    //below requires 8 gld transactions
+    /*ele = d_data[idx];*/
+    //below requires 4 gld transactions
+    /*if(idx < 2)*/
+    /*{*/
+        /*ele = d_data[idx*8];*/
+    /*}*/
+    //below requires 1 gld transactions
+    /*if(idx < 2)*/
+    /*{*/
+        /*ele = d_data[idx];*/
+    /*}*/
+    //below requires 2 gld transactions
+    /*if(idx < 8)*/
+    /*{*/
+        /*ele = d_data[idx];*/
+    /*}*/
+    //below requires 2 gld transactions
+    //NOTICE: this claims the fact that each 4 unsigned numbers(16B) requires a gld transaction
+    //The 16B size is optimized for scatter read, which is the advantage of read-only cache(texture cache)
+    //The constant cache is optimized for broadcasting.
+    //
+    /*if(idx < 5)*/
+    /*{*/
+        /*ele = d_data[idx];*/
+    /*}*/
+
+    //test the read cahe
+    //below uses 16 gld transactions, no read cache for time
+    /*ele = d_data[idx];*/
+    /*ele = d_data[idx];*/
+    //test the write cache
+    //below uses 8 gld transactions, no write cache for time
+    /*d_data[idx] = 0;*/
+    /*d_data[idx] = 0;*/
+
+    //test broadcasting
+    //below also uses 4 gld transactions?
+    ele = d_data[0];
+
+    //test overlapping
+    //below requires 4 transactions, which seems reads of each 4 threads are combined into a small group and small groups may be not executed at the same time
+    /*ele = d_data[idx%4];*/
+
+    //TODO:test relations among gld transactions, throughput and efficiency
+    //if one 128B read is better then 4 separated 32B reads?
 }
 
 int main(int argc, const char* argv[])
@@ -106,8 +164,8 @@ int main(int argc, const char* argv[])
     cudaMalloc(&d_data, sizeof(unsigned)*32);
     /*hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();*/
     /*hello<<<1000000000L, 1024>>>();*/
-    /*hello<<<1, 32>>>(d_data);*/
-    hello<<<1, 1024>>>(d_data);
+    hello<<<1, 32>>>(d_data);
+    /*hello<<<1, 1024>>>(d_data);*/
 	//Below checks if the kernel launches successfully
 	checkCudaErrors(cudaGetLastError());
 	//force the printf()s to flush
