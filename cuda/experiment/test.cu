@@ -45,6 +45,7 @@ void check(T err, const char* const func, const char* const file, const int line
 /*#define BLOCK_WIDTH 1024*/
 
 //Initially, this function uses 328B constant memory
+//(this may include all constant numbers, which will also occupy registers when running)
 //If we add more constant variables, this size will grow
 __global__ void hello(unsigned* d_data)
 {
@@ -53,7 +54,21 @@ __global__ void hello(unsigned* d_data)
 
 	/*printf("Hello, world! I am a thread in block %d\n", blockIdx.x);*/
 
-	/*__syncthreads();*/
+    if(threadIdx.x > 512)
+    {
+        return;
+    }
+    //NOTICE: for a block, if some threads has returned, we can still use __syncthreads()
+    //However, these threads can not be used to finish works again
+    __syncthreads();
+    if(threadIdx.x == 0)
+    {
+        printf("after sync!\n");
+    }
+    if(threadIdx.x > 512)
+    {
+        printf("the thread still alive\n");
+    }
 
     //HACK: we can hack the global load/store transaction number/size here
     //Or we can explore the mechanism of register allocation.
@@ -149,6 +164,45 @@ __global__ void hello(unsigned* d_data)
 
     //TODO:test relations among gld transactions, throughput and efficiency
     //if one 128B read is better then 4 separated 32B reads?
+    //TODO: test the transactions when using constant memory instead of registers
+    //the speed of 32 threads writing to the same address in shared mem, compared with only one
+    //TODO: compare gld and dram transactions
+    //TODO: test the efficiency of one thread do a single transaction, save vs not-saved
+    //TODO:test the transactions of read/write by memcpy with a single thread
+    //TODO:test the speed of CudaMemcpy, memcpy in kernel and multiple threads copying
+
+    //TODO: test the efficiency of load balance among warps(combine the tasks of different warps)
+    //TODO: tets the tiem cost of adding unnecessary __syncthreads calls
+}
+
+__global__ void
+spill_kernel(unsigned* ptr0, unsigned* ptr1)
+{
+    //https://stackoverflow.com/questions/12167926/forcing-cuda-to-use-register-for-a-variable?answertab=active#tab-top
+    int i = threadIdx.x;
+    int idx = threadIdx.x % 32;
+    int group = threadIdx.x / 32;
+    unsigned x = i;
+    unsigned y = x * x;
+    unsigned z = y * y;
+    unsigned p = x + y + z;
+    unsigned q = p * p;
+    unsigned r = q * q;
+    //NOTICE: the compiler will place the below content in local memory
+    /*unsigned xxx[30];*/
+    unsigned xxx[9];
+    xxx[7] = 18;
+    unsigned myid = 9;  //this inst not change register and constant memory usage
+    unsigned offset = idx * idx;  //this inst adds one register
+    unsigned p0 = i;   //this inst not adds register
+    //insts below not add registers
+    unsigned p1 = i * i;
+    unsigned p2 = i * i * i;
+    unsigned p3 = group * group;
+
+    unsigned f0 = 100; //no adds
+    unsigned f1 = f0 * f0;  //no adds
+    //QUERY: if 10 is a boottleneck? later all will be palced in local memory?
 }
 
 int main(int argc, const char* argv[])
@@ -168,8 +222,8 @@ int main(int argc, const char* argv[])
     cudaMalloc(&d_data, sizeof(unsigned)*32);
     /*hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();*/
     /*hello<<<1000000000L, 1024>>>();*/
-    hello<<<1, 32>>>(d_data);
-    /*hello<<<1, 1024>>>(d_data);*/
+    /*hello<<<1, 32>>>(d_data);*/
+    hello<<<1, 1024>>>(d_data);
 	//Below checks if the kernel launches successfully
 	checkCudaErrors(cudaGetLastError());
 	//force the printf()s to flush
@@ -177,6 +231,10 @@ int main(int argc, const char* argv[])
 	//Below checks if the kernel runs and ends successfully
 	checkCudaErrors(cudaGetLastError());
     cudaFree(d_data);
+
+    //test register spill
+    unsigned ptr[10];
+    spill_kernel<<<1,32>>>(ptr+0, ptr+1);
 
     //test the latency of small transfer between CPU and GPU
     /*unsigned *h_data[3];*/
