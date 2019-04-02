@@ -1,0 +1,8 @@
+https://blog.csdn.net/qq_19004627/article/details/78689641
+
+vmhgfs-fuse .host:/VMSHARE /mnt/hgfs
+
+vmhgfs-fuse -o allow_other .host:/VMSHARE /mnt/hgfs
+
+you may consider adding it to /etc/fstab, but this may cause error if the mounting fails.
+
