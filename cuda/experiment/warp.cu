@@ -26,6 +26,13 @@ C语言的log函数耗时钟周期多，且取的是自然对数，要取以2为
 一种比较好的方式是右移位运算，做二分查找，最多只需五次
 =============================================================================*/
 
+//METHOD: hwo to find the first occurence in a warp
+//One way is use atomicCAS to write to a shared variable(only write when the new is smaller than old)
+//sequential scan/binary search in shared memory
+//ballot() and extract the lowest 1
+//how to find the last occurence?
+//write to shared memory first and reverse read by each warp, then transformed into the former question.
+
 #include <stdio.h>
 #include <cuda.h> 
 #include <cuda_runtime.h> 
