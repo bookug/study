@@ -55,6 +55,8 @@ int
 main(void)
 {
     Lock myLock;
+    //NOTICE: it is right when each block only has one thread.
+    //If there exist a warp, it may cause deadlock due to the SIMT execution.
     theKernel<<<nob, 1>>>(myLock);
     return 0;
 }
