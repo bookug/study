@@ -12,7 +12,10 @@ Use Latex formula in word
 
 Use Latex formula in visio
 
-open pdf in illustartor, and save as svg or emf
+For example, we need the formula symbol theta.
+open pdf in illustartor, and save as svg or emf(or wmf).
+Then, better to open it in visio rather than insert as image, and we can edit it to modify the font of theta as Times New Roman, as well as its size.
+This is really a vector graph, wrappered as a Text Frame, and can be copied to other visio files.
 
 ---
 
