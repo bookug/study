@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 #include <stdlib.h>
-#include <malloc.h> 
-#include <iostream> 
+#include <malloc.h>
+#include <iostream>
 
 using namespace std;
 
@@ -28,27 +28,26 @@ int main()
 {
     //NOTICE: int a[1000000] on stack is invalid, but in machines with huge machines it will not report errors
     int a[100];
-//    free(a);
-    int* b = new int [1000];
+    //    free(a);
+    int* b = new int[1000];
     //    mismatched memory allocation/recycle
-//    free(b);
+    //    free(b);
     //    mismatched memory allocation/recycle
-//    delete b;
+    //    delete b;
     int* c = b + 10;
-    //invalid 
-//    delete[] c;
+    //invalid
+    //    delete[] c;
     delete[] b;
 
-    //NOTICE: thsi is huge, but it uses mmap if you use strace to watch, which means these memory is consumed only when used
+    //NOTICE: this is huge, but it uses mmap if you use strace to watch, which means these memory is consumed only when used
     int* p = (int*)malloc(sizeof(int) * 10000000000L);
-    cout<<"check: "<<p<<endl;
-//    p[200000] = 1;
-    for(long i = 0; i < 10000000000L; ++i)
-    {
+    cout << "check: " << p << endl;
+    //    p[200000] = 1;
+    for (long i = 0; i < 10000000000L; ++i) {
         p[i] = i + 1L;
     }
     //invalid
-//    free(p+100);
+    //    free(p+100);
     //this is ok, nothing happens, so a good habbit is to set pointer to NULLafter releasing it
     free(NULL);
 
@@ -59,9 +58,8 @@ int main()
     //Linux does, because it will destroy the virtual memory of the process, but not the memory leak in kernel module!
     //some real-time systems not do this recycling
     //https://blog.csdn.net/libinjlu/article/details/54865887?utm_source=blogxgwz2
-    cout<<"byebye"<<endl;
+    cout << "byebye" << endl;
     getchar();
 
     return 0;
 }
-
